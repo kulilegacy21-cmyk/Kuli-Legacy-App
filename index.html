@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kuli Legacy">
+<meta name="theme-color" content="#080808">
+<title>Kuli Legacy</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap");
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{--bg:#080808;--bg2:#111;--bg3:#1a1a1a;--bg4:#242424;--b:#232323;--b2:#333;--t:#f2f2f2;--t2:#aaa;--t3:#666;--gold:#e8d5a3;--gold2:#c4a96e;--gold3:#a07840;--green:#4ade80;--yellow:#fbbf24;--red:#f87171;--blue:#60a5fa;--sans:"DM Sans",system-ui,sans-serif;--serif:"Cormorant Garamond",Georgia,serif;--mono:"DM Mono",monospace;--r:10px;--r2:14px;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-family:var(--sans);}
+
+#login{position:fixed;inset:0;background:#000;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto;}
+#login.hide{display:none;}
+@keyframes pulse{0%,100%{filter:drop-shadow(0 0 8px rgba(232,213,163,.4));}50%{filter:drop-shadow(0 0 24px rgba(232,213,163,.9));}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.kl-logo{animation:pulse 3s ease-in-out infinite;margin-bottom:14px;}
+.kl-owned{font-size:9px;letter-spacing:.22em;color:var(--gold3);text-transform:uppercase;animation:fadeUp .8s ease both .3s;margin-bottom:3px;}
+.kl-tagline{font-size:9px;letter-spacing:.18em;color:var(--t3);text-transform:uppercase;animation:fadeUp .8s ease both .45s;margin-bottom:32px;}
+.login-box{width:100%;max-width:300px;animation:fadeUp .8s ease both .55s;}
+.login-panel{display:none;}.login-panel.show{display:block;}
+.lf-group{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;}
+.lf-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;}
+.lf-input{font-size:15px;padding:12px 14px;border:1px solid var(--b2);border-radius:var(--r);background:rgba(255,255,255,.04);color:var(--t);font-family:var(--sans);-webkit-appearance:none;transition:border-color .2s;}
+.lf-input:focus{outline:none;border-color:var(--gold);background:rgba(232,213,163,.04);}
+.lf-input::placeholder{color:var(--t3);}
+.lf-select{font-size:14px;padding:12px 14px;border:1px solid var(--b2);border-radius:var(--r);background:rgba(255,255,255,.04);color:var(--t);font-family:var(--sans);-webkit-appearance:none;width:100%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+.lf-select:focus{outline:none;border-color:var(--gold);}
+.lf-err{color:var(--red);font-size:12px;min-height:16px;margin-bottom:10px;text-align:center;}
+.lf-success{color:var(--green);font-size:12px;min-height:16px;margin-bottom:10px;text-align:center;}
+.btn-full{width:100%;padding:13px;background:var(--gold);color:#000;border:none;border-radius:var(--r);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);}
+.btn-full:active{background:var(--gold2);transform:scale(.98);}
+.btn-ghost{background:none;border:none;color:var(--t3);font-size:11px;cursor:pointer;display:block;width:100%;text-align:center;margin-top:14px;font-family:var(--sans);letter-spacing:.04em;}
+.btn-ghost:hover{color:var(--t2);}
+.login-divider{text-align:center;font-size:10px;color:var(--t3);margin:14px 0;letter-spacing:.08em;}
+.pending-badge{background:var(--red);color:#fff;border-radius:20px;font-size:10px;font-weight:700;padding:2px 7px;margin-left:6px;}
+#app{display:none;flex-direction:column;height:100vh;height:100dvh;max-width:700px;margin:0 auto;}
+#hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 10px;border-bottom:1px solid var(--b);background:rgba(8,8,8,.97);backdrop-filter:blur(10px);flex-shrink:0;gap:8px;}
+.hbrand{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--gold);letter-spacing:.04em;}
+.hsub{font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-top:1px;}
+.hright{display:flex;align-items:center;gap:8px;}
+.rpill{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--b2);background:transparent;cursor:pointer;font-family:var(--sans);}
+.lout{font-size:11px;padding:5px 10px;border-radius:20px;border:1px solid var(--b2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--sans);}
+.adot{width:7px;height:7px;border-radius:50%;background:var(--b2);flex-shrink:0;cursor:pointer;}
+.adot.ok{background:var(--green);}.adot.err{background:var(--red);}
+.aldot{width:7px;height:7px;border-radius:50%;background:var(--red);display:none;flex-shrink:0;}
+.aldot.on{display:block;}
+.skum{font-family:var(--mono);font-size:9px;color:var(--t3);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#pwab{display:none;background:var(--gold);color:var(--bg);padding:10px 16px;font-size:12px;font-weight:500;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;}
+#pwab.show{display:flex;}
+.pwax{background:rgba(0,0,0,.15);border:none;color:var(--bg);font-size:14px;font-weight:700;padding:3px 10px;border-radius:6px;cursor:pointer;}
+#screens{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:90px;}
+.scr{display:none;padding:16px;}.scr.on{display:block;}
+#bnav{display:flex;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;background:rgba(8,8,8,.97);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom,0);z-index:50;backdrop-filter:blur(10px);}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;background:none;border:none;color:var(--t3);font-size:9px;font-weight:600;letter-spacing:.06em;cursor:pointer;text-transform:uppercase;font-family:var(--sans);}
+.ni.on{color:var(--gold);}.ni svg{width:22px;height:22px;}
+.ptitle{font-size:24px;font-weight:700;color:var(--t);margin-bottom:4px;letter-spacing:-.02em;}
+.psub{font-size:12px;color:var(--t3);margin-bottom:20px;}
+.slbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin:20px 0 10px;}
+.slbl:first-child{margin-top:0;}
+.card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;}
+.cgold{background:rgba(232,213,163,.04);border:1px solid rgba(232,213,163,.2);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;}
+.ctitle{font-size:13px;font-weight:700;color:var(--t);margin-bottom:10px;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin-bottom:18px;}
+.mc{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:12px 10px;}
+.ml{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.mv{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--t);line-height:1;}
+.ms{font-size:10px;color:var(--t3);margin-top:3px;}
+.al{border-radius:var(--r);padding:10px 14px;font-size:12px;display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;line-height:1.5;border:1px solid;}
+.aw{background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.25);color:var(--yellow);}
+.ae{background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.25);color:var(--red);}
+.ai{background:rgba(96,165,250,.07);border-color:rgba(96,165,250,.25);color:var(--blue);}
+.ag{background:rgba(232,213,163,.07);border-color:rgba(232,213,163,.25);color:var(--gold);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;font-size:13px;font-weight:600;border-radius:var(--r);background:transparent;color:var(--t);cursor:pointer;border:1px solid var(--b2);font-family:var(--sans);transition:all .15s;}
+.btn:active{transform:scale(.97);}.btn:hover{background:var(--bg3);}
+.btn.pri{background:var(--gold);color:var(--bg);border-color:var(--gold);}
+.btn.pri:hover{background:var(--gold2);}
+.btn.go{border-color:var(--gold2);color:var(--gold);}
+.btn.danger{color:var(--red);border-color:rgba(248,113,113,.3);}
+.btn.sm{padding:6px 12px;font-size:11px;}
+.brow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;font-weight:600;}
+.fg input,.fg select,.fg textarea{font-size:14px;padding:10px 12px;border:1px solid var(--b2);border-radius:var(--r);background:var(--bg3);color:var(--t);font-family:var(--sans);-webkit-appearance:none;appearance:none;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--gold);}
+.fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.fg textarea{resize:vertical;min-height:72px;line-height:1.5;}
+.fg input[readonly]{background:var(--bg2);color:var(--t3);}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.ff{margin-bottom:12px;}
+.utog{display:flex;background:var(--bg3);border-radius:20px;padding:2px;border:1px solid var(--b);gap:2px;}
+.ub{font-size:12px;font-weight:600;padding:5px 14px;border:none;background:transparent;color:var(--t3);cursor:pointer;border-radius:18px;font-family:var(--sans);}
+.ub.on{background:var(--bg4);color:var(--t);border:1px solid var(--b2);}
+table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{text-align:left;padding:7px 8px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--b);}
+.tbl th:not(:first-child){text-align:right;}
+.tbl td{padding:10px 8px;border-bottom:1px solid var(--b);color:var(--t);}
+.tbl td:not(:first-child){text-align:right;font-family:var(--mono);font-size:12px;color:var(--t2);}
+.tbl td.ctr{text-align:center;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr.sum td{border-top:1px solid var(--b2);font-weight:700;border-bottom:none;padding-top:12px;color:var(--gold);}
+.dr{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--b);gap:8px;}
+.dr:last-child{border-bottom:none;}
+.dk{font-size:12px;color:var(--t3);flex-shrink:0;}
+.dv{font-family:var(--mono);font-size:11px;color:var(--t);text-align:right;}
+.bdg{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:700;display:inline-block;border:1px solid;}
+.bpass{background:rgba(74,222,128,.1);color:var(--green);border-color:rgba(74,222,128,.2);}
+.bfail{background:rgba(248,113,113,.1);color:var(--red);border-color:rgba(248,113,113,.2);}
+.bpend{background:rgba(160,160,160,.08);color:var(--t3);border-color:var(--b);}
+.bwarn{background:rgba(251,191,36,.1);color:var(--yellow);border-color:rgba(251,191,36,.2);}
+.btrend{background:rgba(74,222,128,.08);color:var(--green);border-color:rgba(74,222,128,.15);font-size:9px;}
+.bgold{background:rgba(232,213,163,.1);color:var(--gold);border-color:rgba(232,213,163,.2);}
+.step{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--b);}
+.step:last-child{border-bottom:none;}
+.snum{width:22px;height:22px;min-width:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--t3);}
+.stxt{font-size:13px;color:var(--t2);line-height:1.5;}
+.qcg{display:grid;grid-template-columns:1fr 1fr;}
+.qci{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);padding:8px 4px;border-bottom:1px solid var(--b);}
+.qci input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
+.ptabs{display:flex;gap:3px;background:var(--bg2);border-radius:var(--r);padding:4px;margin-bottom:16px;border:1px solid var(--b);overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ptab{flex:0 0 auto;font-size:11px;font-weight:600;padding:7px 12px;cursor:pointer;border-radius:7px;color:var(--t3);background:none;border:none;font-family:var(--sans);white-space:nowrap;}
+.ptab.on{background:var(--bg4);color:var(--t);border:1px solid var(--b2);}
+.show-banner{background:var(--gold);color:var(--bg);border-radius:var(--r);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.show-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+.shc{background:var(--bg2);border:1px solid var(--b2);border-radius:var(--r2);padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;user-select:none;transition:all .15s;}
+.shc:active{transform:scale(.95);background:var(--bg3);}
+.shc-n{font-size:11px;font-weight:600;color:var(--t2);text-align:center;}
+.shc-q{font-size:38px;font-weight:800;font-family:var(--mono);color:var(--gold);line-height:1;}
+.shc-p{font-size:11px;color:var(--t3);}
+.oc{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:10px;}
+.oh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.oid{font-family:var(--mono);font-size:12px;font-weight:600;}
+.ocu{font-size:12px;color:var(--t3);}
+.oit{font-size:12px;color:var(--t2);margin:5px 0;}
+.ssel{font-size:11px;padding:5px 10px;border-radius:20px;border:1px solid var(--b2);background:var(--bg3);color:var(--t);font-family:var(--sans);}
+.ivc{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:10px;}
+.ivc.low{border-color:rgba(251,191,36,.4);}.ivc.crit{border-color:rgba(248,113,113,.4);}
+.ivbw{height:3px;background:var(--bg4);border-radius:2px;margin:10px 0 4px;}
+.ivb{height:3px;border-radius:2px;}
+.fc{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r2);padding:14px;margin-bottom:8px;cursor:pointer;transition:border-color .2s;}
+.fc:active{border-color:var(--gold);}
+.sr{background:rgba(232,213,163,.04);border:1px solid rgba(232,213,163,.25);border-radius:var(--r2);padding:18px;margin-bottom:12px;}
+.sn{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--gold);margin-bottom:6px;}
+.sst{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin:14px 0 6px;}
+.npills{display:flex;flex-wrap:wrap;gap:6px;}
+.np{font-size:11px;padding:4px 12px;border-radius:20px;background:var(--bg3);border:1px solid var(--b2);color:var(--t2);}
+.np.t{border-color:rgba(251,191,36,.3);color:var(--yellow);}
+.np.m{border-color:rgba(232,213,163,.3);color:var(--gold);}
+.np.b{border-color:rgba(96,165,250,.3);color:var(--blue);}
+.cb{background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r);padding:12px;font-size:12px;color:var(--t2);line-height:1.7;cursor:pointer;}
+.cb:active{background:var(--bg4);}
+.imu{border:2px dashed var(--b2);border-radius:var(--r2);padding:28px 20px;text-align:center;cursor:pointer;position:relative;overflow:hidden;}
+.imu:hover{border-color:var(--gold2);}
+.imu input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+#iprev{width:100%;max-height:220px;object-fit:cover;border-radius:var(--r);margin-bottom:12px;display:none;}
+.cr{background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r2);padding:16px;margin-bottom:10px;}
+.ptag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block;margin-bottom:8px;}
+.tt{background:rgba(255,0,68,.1);color:#ff6b6b;border:1px solid rgba(255,0,68,.2);}
+.ig{background:rgba(225,48,108,.1);color:#e1306c;border:1px solid rgba(225,48,108,.2);}
+.wb{background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.2);}
+.htags{font-size:12px;color:var(--blue);margin-top:8px;line-height:1.8;}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.tsi{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;cursor:pointer;}
+.tsq{font-size:13px;font-weight:600;color:var(--t);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.tsa{font-size:12px;color:var(--t2);line-height:1.7;margin-top:10px;display:none;padding-top:10px;border-top:1px solid var(--b);}
+.tsa.open{display:block;}
+#ldov{position:fixed;inset:0;background:rgba(8,8,8,.98);z-index:100;overflow-y:auto;display:none;padding:16px;max-width:700px;margin:0 auto;}
+#ldov.show{display:block;}
+.sgi{background:var(--bg3);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;border-left:3px solid var(--gold);}
+.sgt{font-size:13px;font-weight:700;color:var(--t);margin-bottom:4px;}
+.sgb{font-size:12px;color:var(--t2);line-height:1.6;}
+.empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:13px;}
+.hr{padding:11px 0;border-bottom:1px solid var(--b);}
+.hr:last-child{border-bottom:none;}
+.ht{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.hsku{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t);}
+.hmeta{font-size:11px;color:var(--t3);flex:1;}
+@media print{#hdr,#bnav,#pwab,#login,.no-print{display:none!important;}body{background:#fff;color:#000;}#screens{overflow:visible;padding-bottom:0;}.scr{display:none!important;}#s-batch.on{display:block!important;}}
+</style>
+</head>
+<body>
+<div id="login">
+  <img class="kl-logo" src="data:image/webp;base64,UklGRvwOAABXRUJQVlA4IPAOAABQRQCdASrIAMgAPjEYiUOiIaESmX1QIAMEsbdur63QH7B+QGwyeJ/o3o0VP+nfgj2Adk3NHmQ8kf8b+4/mN8Ef8V7BfMA/Rr/h/2n1QP1A9xn83/2H5AfADzXv7Z/u/8Z7pv7p6gf9Z86r2Cf2A9gD9o/S9/bb/3fJd+3/7VfAj+yv//9gD0AOGL/u3b1/ieVb9Uv3G0j/5J9ufrv5Af0/9kvwV9tfgnwCPxr+Q/1X8jfzM+kN++4C9a/k3+R/q/7u+fv+tflH7ueIB/K/6//keNooD/ob/mezF/Af+b/F/4b0d/mv+L/8P+e/dH6B/5V/W/91+an7//WL6+v2q///uZ/tn//ynKS+Ul8o9QjJ072FEh9ihKSyf+0lK1HVvq232CSkjhdMTTq0Ytu/Zf1KiyUd98sExlIpwz67TFuaW+7lyjInRrhgzZx8qxvwp43RlnX3AdzD/Y1ckfN2y9dwqRttiL9xcgONqhUIpSCvB8FY9FjRTjS2ECBZRapbK+10P6MRoFlH/6TnF6VanaXdEExMgrlCULm7lNWqsOVnluc/vi8OI6yYk1d40CK0I2lFH0JhrzdWIoGO11xumPJ4ytx7UkSaw6y7U3xHjzOMWPOEO0N1xd0biBoO6WsCw411E07hg5CTliTmwnjI+WT2JD8fNsmupL//AkJCSz3PQNmzDVbd+CpBxgJn+3bzMCi8zSPGcDY92BvsDfXTr6SApcRjAZ/+PHHoG83jwOxvg6VBwAD+/u6qAMt6kw+Ir18x3x4IAAAAFMKYq1PRgTcDkai+hrVzGZ9IZQf2oe+W8ThGzHPG1DFnDf4WMQFQLllC8424mrV95AKzU+a/4AyYl/vUhxzX9NvGHmCzQt1XHU16Dh0bTHjfFpndYMT7FVLOy3Wh6vpMogjiZBbXYxQaFZ/neOVenlLzI9116KV61ZAPFYU4HjkqBm7EY1w8WWGJrBwux+9MoauN9neoLYBzQSwAYP+abB1siT5xgS1Kh/i/aGrS6/l2xwEFfvXXj3z6cCtgIZe7zghjvoh71cLsrcjAC2SpLG8Zsuq05/pSmqejVSN0LLLwJJOhLAYNwp2jd4/N3d9nHpzivUAF0P+wBwf7fGZg+7dDtRIWnd7sIOV1JE+I3luEzGbFVBHZ/Ns/5g2iIODecb+pBKx72tXL14VRumdLQ+3HeYfFmiDM4y6nAw5uv2USS9zZmcxOHoI73MZs+HyDPTt+Pq4O5kwFTskg3+FjEBUGwWrXZdNUP26G+nxPuliEQzOmLmoRp3yhA2UcUf11vvvRuBcC2pJB+Tj9O5v0Iadn15iqOvrzFUcbKYyraItMZILQkuNloDB6h/FzND5zU8UNwebpHIzB6TEx538RyMwcw0CKgI/AFkbHihgyip2+0jme2bf7pKrtoHJyK1EqRQgeH0Z6WZrbQrYCCbtbvFq8IFF4IvcrVFOqP0SEi7jI5tdUIjI8xJgjecU7JkD5HSDRpiSeWmsbYYrRnt7fEwKj4P3CNNmZVPWhoCKTSb8Vg7ErU29VlxuZHKTKZwQn8Dy9nu998nhiJ7IEuoGX0EkHWfpqLbWZAX4RX1lqOAL2qQPSVjOu6ZPn2cV32Ce085k7vDa7AJMUCXFKRu5aFPr+QpsTxWkR7Pjc04DoHqE3X3kjgslnCq0cIGLO5HEsszu5n2HgRKjh318z+6nDj1tgtE9ngS2fkxeUDPaet2sPX7K0QYyCYiXFiEvcSf42yLolgkoOc1HkGGQXZq2Cjw/C/FNX9hxw9IVJgwPZbBxTO6mHmkijixkk68Omm+HTRhWiHQvoobLPyzbRTCZ9Bm+6PYlCeLOxT69MxD6pHv/B3/sMzJIM9zrOxLo64b4A8keXBnOaeKU35RTZ+UkmiABZEb9VA7x8VS7OXY9Zc1l4mCOy2ploiA06hY2kugVr/nG2Y+isS+JgkRYEQGmZBXdBlfhuTjnv2LygZ7B33pH16OV9ExKydZiP7Ugi//3xJQ1Z6I4HXDOcW0M4pMcHgbHBdSv+4PmdIxb4bzF1v6Y/aJKCLUh5gMNgXLh6DyMW2p4gEx3k4JYQ1v08SFNBxFzqagReTg8S35TQR+xm36gNwt1f2AtDlOFw2Jon3YAJQTil1rasohMWppHUsJErAeO1L5ncomy20ZTPeT+inISWox/JF//GGd8bJnBISQuEv4k+6HKHqTVGUHITQDZ4Pn7haCp7w9+O+ChWimEvdUQrW62HnFuFO77vYYzzhVOqqUfrozBjHWmDhkkGe51nYl1ngmPfrRKue50us+F9TXFmJWVeWmE6vlfjJujbQbx8YKmYDg/ross7t/LqaSS/LRKh/tkPeRoxjNREXjvgJ/V8+80zIK86BD2QjIK5XtI8CWZmIdQoEJWsdefvhhoxE6giRokUvXxsfl/ypro+tNKJ4HWmQ0PfSNyZmibZ5JONJZVNVy8YvWPUVntW5NfM/2+7sjDeMbs0JRA3LuM8u2D2oaWeqXLcn7XF0Y7V7pvcGnb+pSZ3e972K4OL4LdD/K7o4PSx034r7HrsqcY2vS8u8YTSKqr/Zu+9+O3SWsXsTcVkRcgyTGU3X/nOL/fhIyJF6g6PsquRNGL4zT9ZAmFm16Dpn1pqsayb/dMZ+CCgqi6+9grj3RcT9ffVFc4gx8wHRt0l9w7zC8HzkdECDH901Y16QCvUei0LplbMTjVVEry3DM7iNH4i4obSfNOSOR4dq5GtrKtHEFdgBrY9T4OLRGFmQYbNdYftnHtO3vQjhbyDHRGrIJaFPgxSAaT1PfHWp4VRquyM0ASsXf2eSc3gaNC8hZ30nM0QsFnuIF37Tul0nyD1XyMdKwusW354el3MlGePLNlCDnl4ozyPEjrSBcUGiCrLYs55B+z4dVps7X5USF9k+byPOChWNYgugnpUCnRiUWbyNDTubVNByyUjFfhBEnO7GC/xKlXtywJ/Y7fY4ofb9EIj6KTSkJmB18uqWa12UsBk4k7MPjQXakmCR0wpy0Tx9otWIcNZpFTdvD4eQY0+b9UoFQbjBJ4CHqVBmAjlJMfbmi3SiDe+Q/X0+KDqswy3FXxEuOu0foYLa57vyJv7qkyBcwGk+dco7s/+j1tQaLWk3I2UbabPg5vzwJBHENqIIC4yvl3nFAQHrLWg0S7IrpWnljhJlAuG6kOhuUAFUlQuak4XT3JhwmfOlbgDgPWZIvnCjNwT0cRVae32SU/5jlsLmpikhljL9ocH5Du2qhtWwxX28ij5NCLEtyTG0Vqap8I0DTVFlRLpLPWzpeOu6bwXhsD4Ewc4zGy/qqJ8+Hm0tBLiOkJS9GSYDp+0GZSEGxodggQH8PtYlMhRDjFaSMEMcSp7GzdkDlel0R4+u8rJS6fwFmpjwYmWsNpmO/Cf79ndtGPU43kaXHbHhk4PMkU63+dEyEvwoX1ttdMnqPFP4g3FeHG6fggDlahBY3hz/iRx8IzKVucgzq3krZVGcAxQZO37/sQqNmjTdGdIko8q80YkJgt/OxzV6+t5rt6agZ8lcZSuvu3eiDi7lHQrgaJ3Mtmevv5tu+iBgXnRl5jbSUwKeUZd5DU+j3BWdj25UTfFy2Wsgzu/2yfN84NKMiAVcq/zid2ajvJ9uBG2TI7qWVvq/oT7JGrmnxEhzqXnjj2gTkMN/JNKGb5JukYthAVvW2mjUyY1nxj/T7tTE8W/z//9U4d/huvQGQmaXzdfT0GZtUNYFuLUy2CIOcD1Fc8UbPZRUmNrssbKAu0HQjpwL6I2HXucXw2d9lyVv4pKF3J3HgIpBMW7d5OOMYznFlkQpLH/DtLfVCAWHV/ctKo1IjbW8T6tdvrricjy1B1MTJAqW3+eeTp9h6r+xFuL+uEAu+KkBDc2+SQJvhXyI8biHN/GjUVEtHWYoepdsEkTQOCA6W8dkOBarEOits067r4Ei076UblG3/LNYhm/zNIXVZOcIm8f7qiwNeKQOE+7cK7/W1sOOjAd8kRBAdfpTKbbf4WApAdHqbvgGrp239C7kXFzFxkV+k8fEiIfkAgzppLnVuMSnfpkPEjnqBTj9twhIUFlo/NzzrYTVGmTa8wEQvLDO7Is3gPEoq8GB26Beyo2sHAFlyu89u1gqNrUV9MA1fzY08/2arkd78Bdy0xmNPIX461K+Ql6/NPk0v4Ittcbzf/0sC/GtuJhrZuZ4JJLOd/70ETSqBntcMtFczH+mh4F/0n9HYg29gJHxpAvb5yWB2nGV+Xmb4fxKDnOgcVIcFueMErqcVlicvZ/eOxE6E+sYnD3DO/H2sHKwNMahSFG7Dlb3yRh99frYvt4hRC5Ha3mRDYyH488onclk4Atmt+kDguDdbSKRd+a136Wxizp1vNokbM1aSKp/vSPy7PqZzkTzd88txu9P4zUWzjYFvHBSOT2EG5so0PgNnWAP0oEeQRaYmmQBfvhhaCJyPWXi5dYA9vDtPy2Ijn8rsh+h2pzpxaW0V2CSTfg9Jh3q06HIH92N8Fxz11NreZp7ccXt2HtkUEgcKO8bF/yxp0eq5p+6+PS9AnbwUGCoaxnYI8kBNa/2WMCP8/Ldb9j//83PyN5PjEizddr8y6pNzTQ7L0j/BKlGFqO9V2M+jeZ1gzJNUhhekY6oiX4P0O54aM5uRGv576GZrGyvrbKaPBdYfponc/V9l/A1smdDvk6YLnRUmT3okb+UosfRq6AwnvKidgB+pGv7tYMzdbpzLY+s2JjOsMws4xCK+G1bECoRVRa078Xvd0N6hi080VUr611HWmf+/ILPFKz3B8HIJ6ud0asVq/cKE9y642YAH+3x1nATU9dCShB4J49LBVisuorM7Vc+tH07FN+aTv0nbWpf+1iNURy4t9ZNKzyGUc3iXfHLC5Mjy/RWayM2VVKyLaUgdD1zF75h9/9ZykqsWZKF5H/y/XEaD/NdI5ZkvICK2kASo9STcKLAAAAAABkLEhXJroDKy8ni6PqldCE7T12eSlY6v6nB+CWd29/4QlfMV4c1fyGsTgqcMZReb3pn7VS9ZVd1lJd2vE1bzueXP/3jfynRX3YON8ALgv8CTY0SYOceMn1OqFYrjw1IL90u98CKp37AaPyyUMT5C3bezu4AA==" width="100" height="100" alt="Kuli Legacy">
+  <div class="kl-owned">Black &middot; Woman &middot; Family Owned</div>
+  <div class="kl-tagline">Built Different &middot; Rise Above</div>
+  <div class="login-box">
+
+    <!-- PANEL: Sign in -->
+    <div class="login-panel" id="lp-signin">
+    <div id="first-time-hint" style="display:none;font-size:12px;color:var(--gold);text-align:center;margin-bottom:14px;padding:10px;background:rgba(232,213,163,.08);border-radius:var(--r);border:1px solid rgba(232,213,163,.2);">First time here? <button onclick="showPanel('lp-admin-setup')" style="background:none;border:none;color:var(--gold);font-weight:700;cursor:pointer;font-size:12px;">Set up your admin account &rarr;</button></div>
+      <div class="lf-group">
+        <div class="lf-label">Username</div>
+        <input class="lf-input" id="li-user" type="text" placeholder="Your name" autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="lf-group">
+        <div class="lf-label">PIN</div>
+        <input class="lf-input" id="li-pin" type="password" inputmode="numeric" maxlength="4" placeholder="4-digit PIN" autocomplete="off">
+      </div>
+      <div class="lf-err" id="li-err"></div>
+      <button class="btn-full" onclick="doLogin()">Sign in</button>
+      <div class="login-divider">or</div>
+      <button class="btn-full" style="background:transparent;border:1px solid var(--b2);color:var(--t2);" onclick="showPanel('lp-register')">Request access</button>
+    </div>
+
+    <!-- PANEL: Admin first-time setup -->
+    <div class="login-panel show" id="lp-admin-setup">
+      <div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:4px;">Welcome, Admin</div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:18px;line-height:1.6;">First launch — set up your admin account to get started.</div>
+      <div class="lf-group">
+        <div class="lf-label">Your name</div>
+        <input class="lf-input" id="as-name" type="text" placeholder="e.g. Will" autocomplete="off">
+      </div>
+      <div class="lf-group">
+        <div class="lf-label">Create PIN</div>
+        <input class="lf-input" id="as-pin" type="password" inputmode="numeric" maxlength="4" placeholder="4-digit PIN">
+      </div>
+      <div class="lf-group">
+        <div class="lf-label">Confirm PIN</div>
+        <input class="lf-input" id="as-pin2" type="password" inputmode="numeric" maxlength="4" placeholder="Confirm PIN">
+      </div>
+      <div class="lf-err" id="as-err"></div>
+      <button class="btn-full" onclick="doAdminSetup()">Create admin account</button>
+    </div>
+
+    <!-- PANEL: Request access -->
+    <div class="login-panel" id="lp-register">
+      <div style="font-size:13px;color:var(--t2);font-weight:600;margin-bottom:4px;">Request access</div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:18px;line-height:1.6;">Your request goes to the admin for approval.</div>
+      <div class="lf-group">
+        <div class="lf-label">Your name</div>
+        <input class="lf-input" id="rq-name" type="text" placeholder="First name" autocomplete="off">
+      </div>
+      <div class="lf-group">
+        <div class="lf-label">Role</div>
+        <select class="lf-select" id="rq-role">
+          <option value="denise">Denise (Candle &amp; scent)</option>
+          <option value="jaiden">Jaiden (Content)</option>
+          <option value="employee">Team / Employee</option>
+        </select>
+      </div>
+      <div class="lf-group">
+        <div class="lf-label">Choose a PIN</div>
+        <input class="lf-input" id="rq-pin" type="password" inputmode="numeric" maxlength="4" placeholder="4-digit PIN">
+      </div>
+      <div class="lf-group">
+        <div class="lf-label">Confirm PIN</div>
+        <input class="lf-input" id="rq-pin2" type="password" inputmode="numeric" maxlength="4" placeholder="Confirm PIN">
+      </div>
+      <div class="lf-err" id="rq-err"></div>
+      <div class="lf-success" id="rq-ok"></div>
+      <button class="btn-full" onclick="doRegister()">Send request</button>
+      <button class="btn-ghost" onclick="showPanel('lp-signin')">&larr; Back to sign in</button>
+    </div>
+
+  </div>
+</div>
+<div id="app">
+  <div id="hdr">
+    <div><div class="hbrand">Kuli Legacy</div><div class="hsub">Operations</div></div>
+    <div class="hright">
+      <div class="aldot" id="aldot"></div>
+      <div class="adot" id="adot" onclick="go('settings')" title="API status"></div>
+      <div class="skum" id="skum"></div>
+      <button class="rpill" id="rpill" style="color:var(--gold);">Will</button>
+      <button class="lout" onclick="logout()">Log out</button>
+    </div>
+  </div>
+  <div id="pwab">
+    <div><div>Install Kuli Legacy on your iPad</div><div style="font-size:11px;opacity:.7;margin-top:2px;">Tap Share &#11014; then Add to Home Screen</div></div>
+    <button class="pwax" onclick="dimPWA()">&#10005;</button>
+  </div>
+  <div id="screens">
+    <div id="s-dash" class="scr on"></div>
+    <div id="s-batch" class="scr"></div>
+    <div id="s-candle" class="scr"></div>
+    <div id="s-orders" class="scr"></div>
+    <div id="s-inventory" class="scr"></div>
+    <div id="s-show" class="scr"></div>
+    <div id="s-reports" class="scr"></div>
+    <div id="s-content" class="scr"></div>
+    <div id="s-settings" class="scr"></div>
+  </div>
+  <nav id="bnav"></nav>
+</div>
+
+<div id="ldov">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+    <button class="btn sm" onclick="closeLD()">&larr; Back to library</button>
+    <span id="ld-title" style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--gold);"></span>
+  </div>
+  <div id="ld-body"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" async></script>
+<script>
+'use strict';
+const LS='kl_v3';
+let unit='kg',role='will',online=navigator.onLine,capturedImg=null;
+window.addEventListener('online',()=>{online=true;dots();});
+window.addEventListener('offline',()=>{online=false;dots();});
+
+const ROLES={
+  will:{label:'Will',color:'#e8d5a3',nav:['dash','batch','inventory','orders','show','reports','settings']},
+  denise:{label:'Denise',color:'#f9a8d4',nav:['dash','candle','inventory','orders','reports','settings']},
+  jaiden:{label:'Jaiden',color:'#93c5fd',nav:['dash','content','orders','reports','settings']},
+  employee:{label:'Employee',color:'#86efac',nav:['dash','orders']}
+};
+const NI={
+  dash:'<path d="M3 10L9 4l6 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/><rect x="4" y="10" width="4" height="5" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="10" y="10" width="4" height="5" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/>',
+  batch:'<rect x="3" y="4" width="12" height="13" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M7 9h5M7 12h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  candle:'<path d="M9 3v1.5M9 5s-3.5 2-3.5 6.5S9 15 9 15s3.5-.5 3.5-3.5S9 5 9 5z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+  orders:'<rect x="3" y="3" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M6 8h7M6 11h5M6 14h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  inventory:'<rect x="3" y="8" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M6 8V6a3.5 3.5 0 017 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  show:'<circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M9 6v3l2.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  reports:'<path d="M3 15l4.5-5 3 3.5 4-6 3.5 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  content:'<rect x="3" y="3" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M6 7.5h6M6 10.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  settings:'<circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M9 3v1M9 14v1M3 9h1M14 9h1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+};
+const NL={dash:'Home',batch:'Concrete',candle:'Candle',orders:'Orders',inventory:'Stock',show:'Show',reports:'Reports',content:'Content',settings:'Settings'};
+
+// SCENT DATABASE
+const SDB={
+  trending:[
+    {n:'Vanilla Noir',t:'dark vanilla bean',m:'amber resin',b:'vetiver',tP:30,mP:40,bP:30,l:8,c:'Warm vanilla opens to smoked amber. Sophisticated, gender-neutral, intimate. Stays with you.',wax:'Soy wax',wk:'CD-18 or ECO-6'},
+    {n:'Cedar Smoke',t:'bergamot',m:'cedar heart',b:'smoked oud',tP:25,mP:45,bP:30,l:7,c:'Bright citrus fades into rich woody smoke. Bold opening with warm lingering finish.',wax:'Coconut-soy blend',wk:'CD-14 or ECO-4'},
+    {n:'Salted Caramel',t:'caramel drizzle',m:'sea salt',b:'sandalwood',tP:35,mP:35,bP:30,l:9,c:'Sweet-savory opening that dries to warm wood. Gourmand with unexpected edge.',wax:'Soy wax',wk:'CD-18'},
+    {n:'Yuzu White Tea',t:'yuzu zest',m:'green tea',b:'white musk',tP:40,mP:35,bP:25,l:6,c:'Bright Japanese citrus over clean tea. Uplifting, airy, modern.',wax:'Soy wax',wk:'CD-14'}
+  ],
+  gourmand:[
+    {n:"Cookie Munch",t:'brown butter',m:'vanilla bean',b:'toasted sugar',tP:30,mP:40,bP:30,l:10,c:'Warm bakery opens with brown butter and sugar. Dries to pure vanilla bliss.',wax:'Soy wax',wk:'CD-18'},
+    {n:'Coffee and Cream',t:'espresso',m:'steamed milk',b:'caramel',tP:35,mP:35,bP:30,l:9,c:'Bold coffee entry softened by cream. Morning ritual in a vessel.',wax:'Soy wax',wk:'CD-18'},
+    {n:'Almond Biscotti',t:'toasted almond',m:'amaretto',b:'vanilla',tP:40,mP:30,bP:30,l:8,c:'Italian bakery warmth. Nutty opening dries to soft vanilla.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Honey Bourbon',t:'wildflower honey',m:'bourbon oak',b:'vanilla amber',tP:30,mP:40,bP:30,l:8,c:'Sweet Southern comfort. Honey into oak and vanilla. Warm and lasting.',wax:'Coconut-soy blend',wk:'CD-14'}
+  ],
+  romantic:[
+    {n:'Rose Noir',t:'black rose',m:'jasmine',b:'dark musk',tP:35,mP:35,bP:30,l:8,c:'Dramatic floral. Sensual, complex, intimate. The scent of a meaningful evening.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Champagne Kiss',t:'sparkling citrus',m:'white peach',b:'soft musk',tP:40,mP:35,bP:25,l:7,c:'Effervescent and joyful. Celebration distilled into fragrance.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Velvet Jasmine',t:'jasmine',m:'gardenia',b:'amber',tP:35,mP:35,bP:30,l:8,c:'Lush floral heart. Jasmine into warm amber. Pure romance.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Midnight Amber',t:'bergamot',m:'damask rose',b:'amber resin',tP:30,mP:40,bP:30,l:7,c:'Evening sophistication. Citrus gives way to rose and amber warmth.',wax:'Soy wax',wk:'CD-14'}
+  ],
+  uplifting:[
+    {n:'Morning Citrus',t:'blood orange',m:'lemon zest',b:'white musk',tP:45,mP:35,bP:20,l:6,c:'Pure energizing brightness. Citrus burst with clean musk finish.',wax:'Soy wax',wk:'CD-10 or ECO-4'},
+    {n:'Eucalyptus Mint',t:'peppermint',m:'eucalyptus',b:'spearmint',tP:40,mP:35,bP:25,l:7,c:'Spa clarity. Cool mint into herbal eucalyptus. Focus, breathe, reset.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Bergamot Sage',t:'bergamot',m:'fresh sage',b:'cedar',tP:35,mP:40,bP:25,l:6,c:'Herbaceous brightness. Earl Grey opener with grounding cedar finish.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Sunshine Bloom',t:'grapefruit',m:'freesia',b:'light musk',tP:40,mP:35,bP:25,l:7,c:'Pure joy. Citrus over fresh florals with clean finish.',wax:'Soy wax',wk:'CD-14'}
+  ],
+  memory:[
+    {n:"Grandma's House",t:'cinnamon stick',m:'vanilla cake',b:'cedar and linen',tP:30,mP:40,bP:30,l:9,c:'Instantly familiar. Warm spice into vanilla baking and old cedar. This is home.',wax:'Soy wax',wk:'CD-18'},
+    {n:'Thunderstorm',t:'petrichor',m:'rain on concrete',b:'damp earth',tP:35,mP:40,bP:25,l:6,c:'The electric moment before rain. Clean, dramatic, and grounding.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Summer Carnival',t:'cotton candy',m:'funnel cake',b:'warm sugar',tP:35,mP:35,bP:30,l:10,c:'Pure childhood summer joy. Sweet, playful, irresistible.',wax:'Soy wax',wk:'CD-18'},
+    {n:'Old Books',t:'paper and ink',m:'leather binding',b:'cedar wood',tP:35,mP:35,bP:30,l:5,c:'Library quiet. Paper and leather over cedar. Cultured and calm.',wax:'Soy wax',wk:'CD-10'},
+    {n:'Bonfire Night',t:'wood smoke',m:'cedar heart',b:'ash and earth',tP:30,mP:40,bP:30,l:7,c:'Outdoor gathering at dusk. Smoke and wood with earthy ash finish.',wax:'Coconut-soy blend',wk:'CD-14'},
+    {n:'Fresh Cut Grass',t:'green grass',m:'clover',b:'damp earth',tP:45,mP:35,bP:20,l:6,c:'Summer lawn after mowing. Green, fresh, and nostalgic.',wax:'Soy wax',wk:'CD-14'}
+  ],
+  seasonal:[
+    {n:'Fall Harvest',t:'apple and spice',m:'cinnamon clove',b:'pumpkin and wood',tP:35,mP:35,bP:30,l:9,c:'Autumn in a vessel. Apple spice opens into harvest warmth.',wax:'Soy wax',wk:'CD-18'},
+    {n:'Winter Pine',t:'blue spruce',m:'pine needle',b:'cedar and frost',tP:35,mP:35,bP:30,l:7,c:'Christmas tree freshness. Crisp evergreen over cedar.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Spring Bloom',t:'lilac',m:'hyacinth',b:'green stem',tP:35,mP:40,bP:25,l:6,c:'Garden awakening. Soft florals over fresh green stems.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Summer Storm',t:'ozone',m:'rain petrichor',b:'warm earth',tP:40,mP:35,bP:25,l:6,c:'Hot summer rain on pavement. Clean, dramatic, seasonal.',wax:'Soy wax',wk:'CD-14'}
+  ],
+  luxury:[
+    {n:'White Cashmere',t:'soft powder',m:'cashmere',b:'sandalwood',tP:30,mP:40,bP:30,l:6,c:'Tactile luxury. Powder softness over cashmere and sandalwood.',wax:'Coconut wax',wk:'CD-10'},
+    {n:'Black Oud',t:'oud',m:'patchouli',b:'amber resin',tP:30,mP:40,bP:30,l:9,c:'Middle Eastern luxury. Rich, deep, unforgettable.',wax:'Coconut-soy blend',wk:'CD-18'},
+    {n:'Bamboo and Silk',t:'green bamboo',m:'white tea',b:'silk musk',tP:40,mP:35,bP:25,l:5,c:'Zen luxury spa. Clean, minimal, sophisticated.',wax:'Coconut wax',wk:'CD-10'},
+    {n:'Cognac and Oak',t:'cognac',m:'leather',b:'oak barrel',tP:30,mP:40,bP:30,l:8,c:'Refined masculine luxury. Spirits warmth over leather and aged oak.',wax:'Coconut-soy blend',wk:'CD-14'}
+  ],
+  bold:[
+    {n:'Tobacco and Leather',t:'tobacco leaf',m:'leather',b:'dark musk',tP:30,mP:40,bP:30,l:8,c:'Raw and unforgettable. Tobacco into leather with dark musk. Takes no prisoners.',wax:'Coconut-soy blend',wk:'CD-18'},
+    {n:'Black Pepper Fig',t:'black pepper',m:'fig',b:'patchouli',tP:35,mP:35,bP:30,l:7,c:'Striking and unexpected. Spice over fruit over earthy depth.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Charcoal and Cedar',t:'charcoal',m:'cedar',b:'vetiver',tP:30,mP:40,bP:30,l:6,c:'Industrial cool. Charcoal smoke over cedar and vetiver.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Ink and Violet',t:'violet',m:'iris',b:'dark wood',tP:35,mP:35,bP:30,l:7,c:'Artistic and moody. Floral iris over dark wood.',wax:'Soy wax',wk:'CD-14'}
+  ],
+  future:[
+    {n:'Solar Flare',t:'ozone',m:'solar musk',b:'warm amber',tP:35,mP:40,bP:25,l:6,c:'2026 clean futurism trend. Spacious, airy, forward-thinking.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Mycelium',t:'forest floor',m:'mushroom earth',b:'damp wood',tP:30,mP:40,bP:30,l:5,c:'Emerging earthy wellness. Grounding, organic, healing.',wax:'Soy wax',wk:'CD-10'},
+    {n:'Desert Rain',t:'petrichor',m:'cactus flower',b:'warm sand',tP:35,mP:35,bP:30,l:6,c:'Southwest botanical wave. Rain on desert heat. Wearable and unique.',wax:'Soy wax',wk:'CD-14'},
+    {n:'Fermented Plum',t:'plum',m:'sake rice',b:'cedar',tP:35,mP:35,bP:30,l:7,c:'Japanese-inspired emerging trend. Fruit-ferment over cedar warmth.',wax:'Soy wax',wk:'CD-14'}
+  ]
+};
+const CAT={trending:'Trending Now',gourmand:'Gourmand',romantic:'Romantic',uplifting:'Uplifting',memory:'Memory and Nostalgia',seasonal:'Seasonal',luxury:'Luxury and Spa',bold:'Bold and Edgy',future:'Future Trend 2026'};
+
+// OFFLINE ENGINE
+const IMAP=[
+  {k:['grandma','home','baking','cookie','cake','oven','kitchen'],c:'memory',n:"Grandma's House"},
+  {k:['thunder','storm','lightning','electric','petrichor'],c:'memory',n:'Thunderstorm'},
+  {k:['carnival','fair','cotton candy','funnel cake','summer fun'],c:'memory',n:'Summer Carnival'},
+  {k:['fire','bonfire','campfire','smores','smoke'],c:'memory',n:'Bonfire Night'},
+  {k:['book','library','paper','reading','ink'],c:'memory',n:'Old Books'},
+  {k:['grass','lawn','mowing','outdoor green'],c:'memory',n:'Fresh Cut Grass'},
+  {k:['vanilla','sweet','dessert','caramel','sugar','chocolate','candy'],c:'gourmand',n:'Vanilla Noir'},
+  {k:['coffee','espresso','morning','cafe','latte'],c:'gourmand',n:'Coffee and Cream'},
+  {k:['rose','romantic','love','date','flower'],c:'romantic',n:'Rose Noir'},
+  {k:['fresh','clean','spa','relax','calm','breathe'],c:'uplifting',n:'Eucalyptus Mint'},
+  {k:['citrus','bright','lemon','orange','energy'],c:'uplifting',n:'Morning Citrus'},
+  {k:['wood','forest','earth','grounding','nature'],c:'bold',n:'Charcoal and Cedar'},
+  {k:['luxury','rich','deep','oud','hotel','expensive'],c:'luxury',n:'Black Oud'},
+  {k:['fall','autumn','pumpkin','harvest','spice','apple'],c:'seasonal',n:'Fall Harvest'},
+  {k:['winter','pine','christmas','cold','snow'],c:'seasonal',n:'Winter Pine'},
+  {k:['spring','garden','bloom','tulip'],c:'seasonal',n:'Spring Bloom'},
+  {k:['rain','wet','petrichor','concrete','pavement'],c:'seasonal',n:'Summer Storm'},
+  {k:['tobacco','leather','bold','dark','masculine'],c:'bold',n:'Tobacco and Leather'},
+  {k:['cashmere','soft','silk','bamboo','zen'],c:'luxury',n:'White Cashmere'}
+];
+
+// PIN HASH
+function hp(p){let h=5381;for(let i=0;i<p.length;i++)h=(h*33)^p.charCodeAt(i);return(h>>>0).toString(36);}
+
+// STATE
+let S={
+  bSeq:1,cSeq:1,oSeq:1,unit:'kg',apiKey:'',
+  sbUrl:'',sbKey:'',sbLastSync:'',
+  users:[],requests:[],
+  bags:{
+    port:{name:'White Portland Type I',bagLb:92.6,paid:55,ship:8,stock:3,reorder:2,lot:''},
+    sil:{name:'325 Mesh Silica',bagLb:50,paid:42,ship:10,stock:3,reorder:2,lot:''},
+    pig:{name:'Black Pigment',bagLb:11,paid:24,ship:6,stock:2,reorder:1,lot:''},
+    sp:{name:'Superplasticizer',bagLb:5,paid:18,ship:5,stock:2,reorder:1,lot:''},
+    wax:{name:'Soy Wax',bagLb:10,paid:28,ship:6,stock:4,reorder:2,lot:''},
+    wick:{name:'Cotton Wicks (pack)',bagLb:0,paid:12,ship:4,stock:5,reorder:2,lot:''},
+    frag:{name:'Fragrance Oils (misc)',bagLb:0,paid:0,ship:0,stock:0,reorder:1,lot:''},
+  },
+  prices:{p9:28,p5:18,pc9:32,pc5:22,pmelt:8,ptee:35,phood:55,pkey:12},
+  batches:[],cBatches:[],orders:[],shows:[],activeShow:null,
+  fragLib:[
+    {id:'f1',name:'Vanilla Amber',cat:'gourmand',top:'vanilla bean',mid:'amber resin',base:'musk',tP:30,mP:40,bP:30,load:8,cost:2.4,stock:16,trend:true,supplier:'Brambleberry',char:'Warm vanilla opens to deep amber. Sophisticated and gender-neutral.',wick:'CD-18',wax:'Soy wax'},
+    {id:'f2',name:'Cedar Smoke',cat:'bold',top:'bergamot',mid:'cedar',base:'smoked oud',tP:25,mP:45,bP:30,load:6,cost:2.1,stock:12,trend:true,supplier:'Natures Garden',char:'Bright citrus fades into rich woody smoke. Bold and lasting.',wick:'CD-14',wax:'Coconut-soy blend'},
+    {id:'f3',name:'Lavender Dream',cat:'uplifting',top:'lavender',mid:'rose',base:'white musk',tP:40,mP:35,bP:25,load:7,cost:1.9,stock:8,trend:false,supplier:'Brambleberry',char:'Classic lavender over soft floral and clean musk.',wick:'CD-14',wax:'Soy wax'},
+  ],
+  customScents:[],content:[],pwaShown:false,
+};
+
+function load(){
+  try{
+    var raw=localStorage.getItem('kl_v3');
+    if(raw){
+      var p=JSON.parse(raw);
+      // Only restore known safe keys - never overwrite with corrupt data
+      var safeKeys=['bSeq','cSeq','oSeq','unit','apiKey','bags','prices',
+        'batches','cBatches','orders','shows','activeShow',
+        'fragLib','customScents','content','pwaShown','users','requests'];
+      safeKeys.forEach(function(k){
+        if(p.hasOwnProperty(k) && p[k]!==undefined) S[k]=p[k];
+      });
+      unit=S.unit||'kg';
+    }
+  }catch(e){console.warn('load error',e);}
+  // Always guarantee arrays
+  if(!Array.isArray(S.users))S.users=[];
+  if(!Array.isArray(S.requests))S.requests=[];
+  if(!Array.isArray(S.batches))S.batches=[];
+  if(!Array.isArray(S.cBatches))S.cBatches=[];
+  if(!Array.isArray(S.orders))S.orders=[];
+  if(!Array.isArray(S.shows))S.shows=[];
+  if(!Array.isArray(S.fragLib))S.fragLib=[];
+  if(!Array.isArray(S.customScents))S.customScents=[];
+  if(!Array.isArray(S.content))S.content=[];
+}
+function save(){S.unit=unit;try{localStorage.setItem('kl_v3',JSON.stringify(S));}catch(e){}}
+
+function pad(n,w=3){return String(Math.floor(n)).padStart(w,'0');}
+function fmt(g){return unit==='g'?parseFloat(g).toFixed(1)+' g':(g/1000).toFixed(3)+' kg';}
+function today(){return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function iso(){return new Date().toISOString().slice(0,10);}
+function addD(n){const d=new Date();d.setDate(d.getDate()+n);return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function genSKU(sz){const d=new Date();return 'KSB-'+sz+'OZ-'+String(d.getFullYear()).slice(-2)+pad(d.getMonth()+1,2)+pad(d.getDate(),2)+'-'+pad(S.bSeq);}
+function genOID(){return 'KLO-'+pad(S.oSeq,4);}
+function cpg(id){const b=S.bags[id];const g=(b.bagLb||1)*453.592;const l=(+b.paid||0)+(+b.ship||0);return l/g;}
+function mgn(p,c){return p>0?((p-c)/p*100):0;}
+function mgc(m){return m>50?'var(--green)':m>30?'var(--yellow)':'var(--red)';}
+function lowM(){return Object.entries(S.bags).filter(([,b])=>+b.stock<=+b.reorder&&+b.reorder>0);}
+function greet(){const h=new Date().getHours();return h<12?'Good morning':'Good afternoon';}
+function sbdg(s){return({new:'bwarn',production:'bpend',packed:'bpend',shipped:'bpass',complete:'bpass'})[s]||'bpend';}
+function cpTxt(t){try{navigator.clipboard.writeText(t);}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}toast('Copied!');}
+function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--bg);padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;pointer-events:none;';document.body.appendChild(t);setTimeout(()=>t.remove(),2000);}
+
+async function callClaude(prompt,sys){
+  if(!S.apiKey)throw new Error('No API key. Add it in Settings.');
+  if(!online)throw new Error('offline');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:sys||'You are a helpful assistant for Kuli Legacy.',messages:[{role:'user',content:prompt}]})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
+  const d=await r.json();return d.content[0].text;
+}
+function dots(){
+  const a=document.getElementById('adot');
+  if(a){a.className='adot'+(S.apiKey?(online?' ok':' err'):'');a.title=S.apiKey?(online?'AI connected':'AI offline'):'No API key';}
+  const al=document.getElementById('aldot');
+  if(al)al.classList.toggle('on',lowM().length>0||(currentUser?.isAdmin&&(S.requests||[]).length>0));
+}
+function initPWA(){const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);if(isIOS&&!window.navigator.standalone&&!S.pwaShown){document.getElementById('pwab').classList.add('show');}}
+function dimPWA(){document.getElementById('pwab').classList.remove('show');S.pwaShown=true;save();}
+
+function offEng(idea) {
+  const il = idea.toLowerCase();
+  let bc='memory', bn="Grandma's House", bs=0;
+  IMAP.forEach(m => { const s=m.k.filter(k=>il.includes(k)).length; if(s>bs){bs=s;bc=m.c;bn=m.n;} });
+  const cat=SDB[bc]||SDB.memory;
+  const s=cat.find(x=>x.n===bn)||cat[0];
+  const capIdea=idea.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  return {
+    name: s.n,
+    top: s.t, mid: s.m, base: s.b,
+    tP: s.tP, mP: s.mP, bP: s.bP, load: s.l,
+    char: s.c,
+    wax: s.wax, wick: s.wk,
+    label: s.n+' by Kuli Legacy -- '+s.c.split('.')[0].toLowerCase(),
+    website: s.n+' by Kuli Legacy. '+s.c+' Handcrafted in Schererville, Indiana. Built Different, Rise Above.',
+    etsy: 'Kuli Legacy presents '+s.n+', inspired by "'+idea+'". '+s.c+' Hand-poured into our signature concrete vessel by our Black-owned family studio. Built to last. Shop Kuli Legacy.',
+    autoCategory: bc, offline: true
+  };
+}
+
+function autoCat(t,m,b) {
+  const a=(t+' '+m+' '+b).toLowerCase();
+  if(/vanilla|caramel|sugar|honey|cookie|coffee|butter|almond/.test(a))return'gourmand';
+  if(/rose|jasmine|gardenia|peach|champagne/.test(a))return'romantic';
+  if(/mint|eucalyptus|citrus|lemon|orange|bergamot|grapefruit/.test(a))return'uplifting';
+  if(/rain|storm|ozone|petrichor|grandma|grass|bonfire|book/.test(a))return'memory';
+  if(/cedar|oud|tobacco|leather|charcoal|vetiver|patchouli/.test(a))return'bold';
+  if(/cashmere|silk|bamboo|cognac/.test(a))return'luxury';
+  if(/pine|spruce|apple|pumpkin|harvest|bloom|lilac/.test(a))return'seasonal';
+  return 'trending';
+}
+
+
+// ── AUTH ──
+// Users stored in S.users: [{id, name, nameLower, role, pinHash, isAdmin, approved, createdAt}]
+// Pending requests: S.requests: [{id, name, role, pinHash, requestedAt}]
+
+function authInit(){
+  document.querySelectorAll('.login-panel').forEach(function(p){p.classList.remove('show');});
+  if(S.users.length===0){
+    showPanel('lp-admin-setup');
+  } else {
+    showPanel('lp-signin');
+  }
+}
+
+function showPanel(id){
+  document.querySelectorAll('.login-panel').forEach(function(p){p.classList.remove('show');});
+  var el=document.getElementById(id);
+  if(el) el.classList.add('show');
+  var fields=['li-err','as-err','rq-err','rq-ok'];
+  fields.forEach(function(fid){var e=document.getElementById(fid);if(e)e.textContent='';});
+}
+
+function doAdminSetup(){
+  var nameEl=document.getElementById('as-name');
+  var pinEl=document.getElementById('as-pin');
+  var pin2El=document.getElementById('as-pin2');
+  var errEl=document.getElementById('as-err');
+  var name=nameEl?nameEl.value.trim():'';
+  var pin=pinEl?pinEl.value.trim():'';
+  var pin2=pin2El?pin2El.value.trim():'';
+  if(!name){if(errEl)errEl.textContent='Enter your name';return;}
+  if(pin.length!==4){if(errEl)errEl.textContent='PIN must be 4 digits';return;}
+  if(pin!==pin2){if(errEl)errEl.textContent='PINs do not match';return;}
+  var uid='u'+Date.now();
+  S.users.push({
+    id:uid,name:name,nameLower:name.toLowerCase(),
+    role:'will',pinHash:hp(pin),isAdmin:true,approved:true,createdAt:iso()
+  });
+  save();
+  enterApp('will',name,true,uid);
+}
+
+function doLogin(){
+  if(S.users.length===0){showPanel('lp-admin-setup');return;}
+  var userEl=document.getElementById('li-user');
+  var pinEl=document.getElementById('li-pin');
+  var errEl=document.getElementById('li-err');
+  var nameIn=userEl?userEl.value.trim().toLowerCase():'';
+  var pin=pinEl?pinEl.value.trim():'';
+  if(!nameIn){if(errEl)errEl.textContent='Enter your username';return;}
+  if(!pin){if(errEl)errEl.textContent='Enter your PIN';return;}
+  var user=null;
+  for(var i=0;i<S.users.length;i++){
+    if(S.users[i].nameLower===nameIn&&S.users[i].approved){user=S.users[i];break;}
+  }
+  if(!user){
+    var pending=false;
+    for(var j=0;j<S.requests.length;j++){
+      if(S.requests[j].nameLower===nameIn){pending=true;break;}
+    }
+    if(errEl)errEl.textContent=pending?'Your request is pending admin approval':'Username not found';
+    return;
+  }
+  if(hp(pin)!==user.pinHash){
+    if(errEl)errEl.textContent='Wrong PIN';
+    if(pinEl)pinEl.value='';
+    return;
+  }
+  enterApp(user.role,user.name,user.isAdmin,user.id);
+}
+
+function doRegister(){
+  var nameEl=document.getElementById('rq-name');
+  var roleEl=document.getElementById('rq-role');
+  var pinEl=document.getElementById('rq-pin');
+  var pin2El=document.getElementById('rq-pin2');
+  var errEl=document.getElementById('rq-err');
+  var okEl=document.getElementById('rq-ok');
+  var name=nameEl?nameEl.value.trim():'';
+  var role=roleEl?roleEl.value:'employee';
+  var pin=pinEl?pinEl.value.trim():'';
+  var pin2=pin2El?pin2El.value.trim():'';
+  if(!name){if(errEl)errEl.textContent='Enter your name';return;}
+  if(pin.length!==4){if(errEl)errEl.textContent='PIN must be 4 digits';return;}
+  if(pin!==pin2){if(errEl)errEl.textContent='PINs do not match';return;}
+  for(var i=0;i<S.users.length;i++){
+    if(S.users[i].nameLower===name.toLowerCase()){if(errEl)errEl.textContent='Name already registered';return;}
+  }
+  for(var j=0;j<S.requests.length;j++){
+    if(S.requests[j].nameLower===name.toLowerCase()){if(errEl)errEl.textContent='Request already pending';return;}
+  }
+  S.requests.push({id:'r'+Date.now(),name:name,nameLower:name.toLowerCase(),role:role,pinHash:hp(pin),requestedAt:iso()});
+  save();
+  if(errEl)errEl.textContent='';
+  if(okEl)okEl.textContent='Request sent! The admin will approve your access.';
+  if(nameEl)nameEl.value='';
+  if(pinEl)pinEl.value='';
+  if(pin2El)pin2El.value='';
+  setTimeout(function(){showPanel('lp-signin');},2500);
+}
+
+var currentUser=null;
+function enterApp(r,name,isAdmin,uid){
+  role=r;
+  currentUser={role:r,name:name,isAdmin:!!isAdmin,id:uid};
+  var loginEl=document.getElementById('login');
+  var appEl=document.getElementById('app');
+  if(loginEl)loginEl.classList.add('hide');
+  if(appEl)appEl.style.display='flex';
+  var pill=document.getElementById('rpill');
+  if(pill){pill.textContent=name||ROLES[role].label;pill.style.color=ROLES[role].color;}
+  var clearFields=['li-user','li-pin','as-name','as-pin','as-pin2','rq-name','rq-pin','rq-pin2'];
+  clearFields.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  buildNav();go('dash');dots();initPWA();
+}
+
+function logout(){
+  currentUser=null;
+  var loginEl=document.getElementById('login');
+  var appEl=document.getElementById('app');
+  if(loginEl)loginEl.classList.remove('hide');
+  if(appEl)appEl.style.display='none';
+  authInit();
+}
+
+function buildNav(){document.getElementById('bnav').innerHTML=ROLES[role].nav.map(t=>'<button class="ni" id="nb-'+t+'" onclick="go(\''+t+'\')" ><svg viewBox="0 0 18 18" fill="none">'+NI[t]+'</svg>'+NL[t]+'</button>').join('');}
+function go(name){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('on'));
+  const s=document.getElementById('s-'+name);
+  if(s){s.classList.add('on');({dash:rDash,batch:rBatch,candle:rCandle,orders:rOrders,inventory:rInv,show:rShow,reports:rReports,content:rContent,settings:rSettings}[name]||function(){})();}
+  const nb=document.getElementById('nb-'+name);if(nb)nb.classList.add('on');
+  document.getElementById('screens').scrollTop=0;
+}
+
+const REC={9:{port:275,sil:275,water:165,pig:16.5},5:{port:175,sil:175,water:105,pig:10.5}};
+
+// DASHBOARD
+function rDash(){
+  const el=document.getElementById('s-dash');
+  const lm=lowM();const open=S.orders.filter(o=>!['complete','shipped'].includes(o.status)).length;const rev=S.orders.reduce((a,o)=>a+o.total,0);
+  let qBtns='';
+  if(role==='will') qBtns='<button class="btn go" style="flex-direction:column;gap:4px;padding:16px;justify-content:center;" onclick="go(\'batch\')"><span style="font-size:22px;">&#9874;</span>New concrete batch</button><button class="btn go" style="flex-direction:column;gap:4px;padding:16px;justify-content:center;" onclick="go(\'show\')"><span style="font-size:22px;">&#128717;</span>Start show mode</button>';
+  else if(role==='denise') qBtns='<button class="btn go" style="flex-direction:column;gap:4px;padding:16px;justify-content:center;" onclick="go(\'candle\')"><span style="font-size:22px;">&#128557;</span>Candle batch</button><button class="btn go" style="flex-direction:column;gap:4px;padding:16px;justify-content:center;" onclick="goCnd(\'scent\')"><span style="font-size:22px;">&#10024;</span>Create a scent</button>';
+  else if(role==='jaiden') qBtns='<button class="btn go" style="flex-direction:column;gap:4px;padding:16px;justify-content:center;" onclick="go(\'content\')"><span style="font-size:22px;">&#128241;</span>Create content</button><button class="btn go" style="flex-direction:column;gap:4px;padding:16px;justify-content:center;" onclick="go(\'orders\')"><span style="font-size:22px;">&#128230;</span>View orders</button>';
+  else qBtns='<button class="btn go" style="grid-column:1/-1;flex-direction:column;gap:4px;padding:16px;justify-content:center;" onclick="go(\'orders\')"><span style="font-size:22px;">&#128230;</span>View orders</button>';
+  const batches=[...S.batches.slice(0,2),...S.cBatches.slice(0,2)].slice(0,3);
+  el.innerHTML='<div style="text-align:center;padding:20px 0 18px;">'
+    +'<div style="font-size:10px;letter-spacing:.25em;color:var(--gold3);text-transform:uppercase;margin-bottom:10px;">Black &middot; Woman &middot; Family Owned</div>'
+    +'<div style="font-family:var(--serif);font-size:clamp(36px,10vw,56px);font-weight:700;letter-spacing:-.02em;line-height:.9;margin-bottom:10px;">KULI<br><span style="color:var(--gold)">LEGACY</span></div>'
+    +'<div style="font-size:11px;color:var(--t3);letter-spacing:.15em;text-transform:uppercase;">'+greet()+', '+ROLES[role].label+' &middot; '+today()+'</div></div>'
+    +(currentUser?.isAdmin&&(S.requests||[]).length?'<div class="al ag"><span>&#9998;</span><span>'+(S.requests.length)+' access request'+(S.requests.length>1?'s':'')+' waiting for your approval &mdash; <button onclick="go(\"settings\")" style="background:none;border:none;color:var(--gold);font-size:12px;cursor:pointer;font-weight:700;">Review in Settings</button></span></div>':'')+lm.map(([,b])=>'<div class="al aw"><span>&#9888;</span><span>Low stock -- '+b.name+': '+(+b.stock===0?'out of stock':b.stock+' bags left')+'</span></div>').join('')
+    +'<div class="metrics">'
+    +'<div class="mc"><div class="ml">Open orders</div><div class="mv">'+open+'</div></div>'
+    +'<div class="mc"><div class="ml">Revenue</div><div class="mv">$'+rev.toFixed(0)+'</div></div>'
+    +'<div class="mc"><div class="ml">Batches</div><div class="mv">'+(S.batches.length+S.cBatches.length)+'</div></div>'
+    +'<div class="mc"><div class="ml">Low stock</div><div class="mv" style="color:'+(lm.length>0?'var(--red)':'var(--green)')+'">'+lm.length+'</div></div>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">'+qBtns+'</div>'
+    +'<div class="slbl">Recent batches</div>'
+    +(batches.length?batches.map(b=>'<div class="card" style="padding:12px 14px;"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span style="font-family:var(--mono);font-size:12px;font-weight:600;">'+b.sku+'</span><span class="bdg '+(b.passed===null?'bpend':+b.passed===+b.qty?'bpass':'bfail')+'">'+(b.passed===null?'pending':b.passed+'/'+b.qty)+'</span></div><div style="font-size:11px;color:var(--t3);margin-top:4px;">'+b.date+' &middot; '+(b.type||'concrete')+' &middot; qty '+b.qty+'</div></div>').join(''):'<div class="empty" style="padding:20px;">No batches yet</div>')
+    +'<div class="slbl">Recent orders</div>'
+    +(S.orders.length?S.orders.slice(0,3).map(o=>'<div class="oc"><div class="oh"><div><div class="oid">'+o.id+'</div><div class="ocu">'+o.customer+' &middot; '+o.channel+'</div></div><span class="bdg '+sbdg(o.status)+'">'+o.status+'</span></div><div class="oit">'+o.items.map(i=>i.name+' x'+i.qty).join(', ')+'</div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-top:6px;"><span>'+o.date+'</span><span style="color:var(--gold);font-weight:700;">$'+o.total.toFixed(2)+'</span></div></div>').join(''):'<div class="empty" style="padding:20px;">No orders yet</div>');
+}
+
+// CONCRETE BATCH
+function rBatch(){
+  const el=document.getElementById('s-batch');
+  const sz=parseInt(document.getElementById('bs-sz')?.value||9);
+  const qty=parseInt(document.getElementById('bs-qty')?.value||10);
+  const sku=genSKU(sz);document.getElementById('skum').textContent=sku;
+  const r=REC[sz];
+  const c={port:r.port*qty*cpg('port'),sil:r.sil*qty*cpg('sil'),pig:r.pig*qty*cpg('pig'),sp:r.port*qty*.0075*cpg('sp')};
+  const tc=Object.values(c).reduce((a,v)=>a+v,0);const cp=tc/qty;
+  const ret=sz===9?S.prices.p9:S.prices.p5;const mg=mgn(ret,cp);
+  const lm=lowM().filter(([k])=>['port','sil','pig'].includes(k));
+  el.innerHTML=
+    lm.map(([,b])=>'<div class="al ae no-print"><span>&#9940;</span><span>'+b.name+': '+(+b.stock===0?'Out of stock':'Low -- '+b.stock+' bags')+'</span></div>').join('')
+    +'<div class="al aw no-print"><span>&#9888;</span><span>PPE required -- P100 respirator &middot; nitrile gloves &middot; safety glasses</span></div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid var(--b);margin-bottom:14px;flex-wrap:wrap;gap:10px;">'
+    +'<div><div style="font-family:var(--serif);font-size:22px;font-weight:700;">KuliStone Blend</div><div style="font-size:11px;color:var(--t3);margin-top:2px;">White Portland Type I &middot; Batch Sheet</div></div>'
+    +'<div style="text-align:right;"><div style="font-family:var(--mono);color:var(--gold);font-weight:600;font-size:12px;">'+sku+'</div><div style="font-size:11px;color:var(--t3);margin-top:2px;">'+today()+'</div></div></div>'
+    +'<div class="fg2"><div class="fg"><label>Vessel size</label><select id="bs-sz" onchange="rBatch()"><option value="9"'+(sz===9?' selected':'')+'>9 oz</option><option value="5"'+(sz===5?' selected':'')+'>5 oz</option></select></div>'
+    +'<div class="fg"><label>Quantity</label><input type="number" id="bs-qty" value="'+qty+'" min="1" max="500" oninput="rBatch()"></div>'
+    +'<div class="fg"><label>Operator</label><input type="text" id="bs-op" placeholder="Name"></div>'
+    +'<div class="fg"><label>Lot #</label><input type="text" id="bs-lot" placeholder="L-001"></div></div>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><div class="fg"><label>Unit</label><div class="utog"><button class="ub'+(unit==='g'?' on':'')+'" onclick="unit=\'g\';save();rBatch()">g</button><button class="ub'+(unit==='kg'?' on':'')+'" onclick="unit=\'kg\';save();rBatch()">kg</button></div></div></div>'
+    +'<div class="metrics" style="margin-bottom:14px;">'
+    +'<div class="mc"><div class="ml">Vessels</div><div class="mv">'+qty+'</div><div class="ms">'+sz+'oz</div></div>'
+    +'<div class="mc"><div class="ml">Batch wt</div><div class="mv" style="font-size:14px;">'+fmt((r.port+r.sil+r.water+r.pig)*qty)+'</div></div>'
+    +'<div class="mc"><div class="ml">Cost/vessel</div><div class="mv" style="font-size:16px;">$'+cp.toFixed(2)+'</div></div>'
+    +'<div class="mc"><div class="ml">Margin</div><div class="mv" style="color:'+mgc(mg)+';font-size:16px;">'+mg.toFixed(0)+'%</div></div></div>'
+    +'<div style="overflow-x:auto;margin-bottom:14px;"><table class="tbl"><thead><tr><th style="min-width:130px;">Ingredient</th><th>Ratio</th><th>Batch wt</th><th>Per vessel</th><th>Cost</th><th class="ctr" style="width:36px;">&#10003;</th></tr></thead><tbody>'
+    +[['White Portland Type I','50% dry',r.port*qty,r.port,c.port],['325 Mesh Silica','50% dry',r.sil*qty,r.sil,c.sil],['Water','0.30 w/b',r.water*qty,r.water,null],['Black Pigment','3% dry',r.pig*qty,r.pig,c.pig],['Superplasticizer','0.5-1% wt',null,null,c.sp]].map(([n,ratio,g,per,cost])=>'<tr><td style="font-weight:600;">'+n+'</td><td>'+ratio+'</td><td>'+(g!==null?fmt(g):'<span style="color:var(--t3)">dose</span>')+'</td><td>'+(per!==null?fmt(per):'--')+'</td><td>'+(cost!==null?'$'+cost.toFixed(3):'--')+'</td><td class="ctr"><input type="checkbox" style="width:16px;height:16px;accent-color:var(--gold)"></td></tr>').join('')
+    +'<tr class="sum"><td>Total</td><td></td><td>'+fmt((r.port+r.sil+r.water+r.pig)*qty)+'</td><td>'+fmt(r.port+r.sil+r.water+r.pig)+'</td><td>$'+tc.toFixed(2)+'</td><td></td></tr>'
+    +'</tbody></table></div>'
+    +'<div class="slbl">Curing schedule</div>'
+    +'<div class="card" style="margin-bottom:14px;">'
+    +[['Pour date',today()+' -- Day 0'],['Demold (18-24 hrs)',addD(1)+' -- Day 1'],['Seal (48 hrs min)',addD(2)+' -- Day 2'],['Ready to ship',addD(3)+' -- Day 3'],['Full cure',addD(28)+' -- Day 28']].map(([l,v])=>'<div class="dr"><span class="dk">'+l+'</span><span class="dv">'+v+'</span></div>').join('')
+    +'</div>'
+    +'<div class="slbl">Mix process</div>'
+    +'<div class="card" style="margin-bottom:14px;">'
+    +['Dry mix Portland + silica + pigment until uniform -- no streaks','Add 80% water, mix 1 min','Add superplasticizer, mix 30 sec','Adjust with remaining 20% water to correct consistency','Total mix 2-3 min -- pour immediately. Working window: 30-60 min'].map((t,i)=>'<div class="step"><div class="snum">'+(i+1)+'</div><div class="stxt">'+t+'</div></div>').join('')
+    +'</div>'
+    +'<div class="slbl">Quality control</div>'
+    +'<div class="qcg" style="margin-bottom:14px;">'
+    +['Color consistent','Surface smooth, no pitting','No air bubbles','No cracks after demold','Weight within spec','Sealer applied evenly','Logo recess clean (9oz)','Approved for fulfillment'].map(t=>'<div class="qci"><input type="checkbox"><span>'+t+'</span></div>').join('')
+    +'</div>'
+    +'<div class="slbl">Yield</div>'
+    +'<div class="fg3" style="margin-bottom:8px;"><div class="fg"><label>Poured</label><input type="number" id="bs-p" placeholder="--" oninput="cY()"></div><div class="fg"><label>Passed QC</label><input type="number" id="bs-pa" placeholder="--" oninput="cY()"></div><div class="fg"><label>Defects</label><input type="number" id="bs-d" placeholder="--" readonly></div></div>'
+    +'<div id="yr" style="font-size:12px;color:var(--t3);margin-bottom:14px;"></div>'
+    +'<div class="slbl">Notes</div><div class="ff"><div class="fg"><textarea id="bs-n" placeholder="Consistency, color match, adjustments..."></textarea></div></div>'
+    +'<div class="slbl no-print">QR code</div><div id="bs-qr" style="margin-bottom:14px;padding:10px;background:var(--bg2);border-radius:var(--r);display:inline-block;" class="no-print"></div>'
+    +'<div class="brow no-print"><button class="btn pri" onclick="window.print()">Print batch sheet</button><button class="btn" onclick="svBatch()">Save to history</button></div>';
+  mkQR('bs-qr',JSON.stringify({sku,size:sz+'oz',qty,date:today()}));
+}
+function cY(){const p=parseInt(document.getElementById('bs-p')?.value)||0;const pa=parseInt(document.getElementById('bs-pa')?.value)||0;const d=document.getElementById('bs-d');if(d)d.value=p>0?Math.max(0,p-pa):'';const r=document.getElementById('yr');if(r)r.textContent=p>0?((pa/p)*100).toFixed(1)+'% pass rate':'';}
+function svBatch(){
+  const sz=parseInt(document.getElementById('bs-sz')?.value||9);
+  const qty=parseInt(document.getElementById('bs-qty')?.value||10);
+  const r=REC[sz];const tc=(r.port*qty*cpg('port'))+(r.sil*qty*cpg('sil'))+(r.pig*qty*cpg('pig'))+(r.port*qty*.0075*cpg('sp'));
+  S.batches.unshift({sku:genSKU(sz),size:sz,qty,type:'concrete',op:document.getElementById('bs-op')?.value||'--',lot:document.getElementById('bs-lot')?.value||'--',notes:document.getElementById('bs-n')?.value||'',passed:parseInt(document.getElementById('bs-pa')?.value)||null,poured:parseInt(document.getElementById('bs-p')?.value)||null,costPer:(tc/qty).toFixed(2),date:today()});
+  ['port','sil','pig'].forEach(id=>{const bg=S.bags[id].bagLb*453.592;S.bags[id].stock=Math.max(0,parseFloat((S.bags[id].stock-(r[id==='pig'?'pig':id]*qty/bg)).toFixed(3)));});
+  S.bSeq++;save();toast('Batch saved!');
+}
+
+// CANDLE PRODUCTION
+let ctab='batch';
+function goCnd(t){go('candle');setTimeout(()=>cTab(t),80);}
+function rCandle(){
+  document.getElementById('s-candle').innerHTML=
+    '<div class="ptitle">Candle production</div><div class="psub">Batch sheets, scent studio, library, troubleshooting</div>'
+    +'<div class="ptabs">'
+    +'<button class="ptab on" id="ct-batch" onclick="cTab(\'batch\')">Batch</button>'
+    +'<button class="ptab" id="ct-scent" onclick="cTab(\'scent\')">Scent studio</button>'
+    +'<button class="ptab" id="ct-lib" onclick="cTab(\'lib\')">Library</button>'
+    +'<button class="ptab" id="ct-up" onclick="cTab(\'up\')">Upload scent</button>'
+    +'<button class="ptab" id="ct-ts" onclick="cTab(\'ts\')">Troubleshoot</button>'
+    +'<button class="ptab" id="ct-stor" onclick="cTab(\'stor\')">Storage</button>'
+    +'<button class="ptab" id="ct-hist" onclick="cTab(\'hist\')">History</button>'
+    +'</div><div id="ct-body"></div>';
+  cTab('batch');
+}
+function cTab(t){
+  ctab=t;
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('on'));
+  const bt=document.getElementById('ct-'+t);if(bt)bt.classList.add('on');
+  const el=document.getElementById('ct-body');if(!el)return;
+  if(t==='batch')el.innerHTML=cBatchHTML();
+  else if(t==='scent')el.innerHTML=scentHTML();
+  else if(t==='lib')el.innerHTML=libHTML();
+  else if(t==='up')el.innerHTML=upHTML();
+  else if(t==='ts')el.innerHTML=tsHTML();
+  else if(t==='stor')el.innerHTML=storHTML();
+  else if(t==='hist')el.innerHTML=cHistHTML();
+}
+
+function cBatchHTML(){
+  const d=new Date();
+  const sku='KLC-'+String(d.getFullYear()).slice(-2)+pad(d.getMonth()+1,2)+pad(d.getDate(),2)+'-'+pad(S.cSeq);
+  const fragOpts=[...S.fragLib,...S.customScents].map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join('');
+  return '<div style="font-family:var(--mono);font-size:11px;color:var(--gold);margin-bottom:14px;">'+sku+'</div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Vessel type</label><select id="cv-vt"><option value="9oz-concrete">9oz Concrete</option><option value="5oz-concrete">5oz Concrete</option><option value="glass-8oz">8oz Glass jar</option><option value="glass-4oz">4oz Glass jar</option><option value="tin-8oz">8oz Tin</option><option value="other">Other</option></select></div>'
+    +'<div class="fg"><label>Quantity</label><input type="number" id="cv-q" value="10" min="1"></div></div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Wax type</label><select id="cv-wt"><option>Soy wax</option><option>Coconut wax</option><option>Coconut-soy blend</option><option>Paraffin</option><option>Beeswax</option></select></div>'
+    +'<div class="fg"><label>Wax per vessel (lbs)</label><input type="number" id="cv-wlb" value="0.40" step="0.01" min="0.01" oninput="calcCB()"></div></div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Fragrance</label><select id="cv-f" onchange="autoFF()">'+(fragOpts||'<option>No fragrances -- upload one first</option>')+'</select></div>'
+    +'<div class="fg"><label>Frag. load %</label><input type="number" id="cv-fl" value="8" min="4" max="12" step="0.5" oninput="calcCB()"></div></div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Wick size</label><select id="cv-wick"><option>CD-10 (small, under 3 inch)</option><option>CD-14 (medium, 3-3.5 inch)</option><option>CD-18 (large, 3.5-4 inch)</option><option>ECO-4 (small)</option><option>ECO-6 (medium)</option><option>ECO-10 (large)</option><option>Wood wick small</option><option>Wood wick medium</option><option>Wood wick large</option><option>Custom</option></select></div>'
+    +'<div class="fg"><label>Pour temp (F)</label><input type="number" id="cv-pt" value="140" min="100" max="200"></div></div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Operator</label><input type="text" id="cv-op" placeholder="Name"></div>'
+    +'<div class="fg"><label>Lot #</label><input type="text" id="cv-lot" placeholder="L-001"></div></div>'
+    +'<div id="cv-calc" style="margin-bottom:12px;"></div>'
+    +'<div class="slbl">Pour timing guide</div>'
+    +'<div class="card" style="margin-bottom:12px;">'
+    +[['Melt wax','Heat to 170-185F, stir every 5 min'],['Add fragrance','At 155-165F, stir 2 min -- never above 185F'],['Cool to pour temp','Cool to 130-145F stirring gently'],['Pour','Pour slowly into vessel, avoid splashing'],['Set wick','Immediately after pour while liquid'],['Cure','24 hrs room temp, full cure 48 hrs minimum']].map(([t,d])=>'<div class="dr"><span class="dk" style="font-weight:600;">'+t+'</span><span class="dv" style="font-size:11px;color:var(--t2);text-align:left;padding-left:8px;">'+d+'</span></div>').join('')
+    +'</div>'
+    +'<div class="slbl">QC checklist</div>'
+    +'<div class="qcg" style="margin-bottom:12px;">'
+    +['Scent accurate to recipe','Even wax surface, no sinkholes','Wick centered and trimmed 6mm','Correct vessel and label applied','Color consistent if dyed','Cure 48 hrs before shipping'].map(t=>'<div class="qci"><input type="checkbox"><span>'+t+'</span></div>').join('')
+    +'</div>'
+    +'<div class="ff"><div class="fg"><label>Batch notes</label><textarea placeholder="Scent throw strength, observations, adjustments..."></textarea></div></div>'
+    +'<div class="brow"><button class="btn pri" onclick="svCB()">Save batch</button></div>';
+}
+function autoFF(){
+  const fid=document.getElementById('cv-f')?.value;
+  const f=[...S.fragLib,...S.customScents].find(x=>x.id===fid);
+  if(!f)return;
+  const l=document.getElementById('cv-fl');if(l&&f.load)l.value=f.load;
+  const w=document.getElementById('cv-wick');
+  if(w&&f.wick){const opts=Array.from(w.options);const match=opts.find(o=>o.text.startsWith(f.wick.split(' ')[0]));if(match)w.value=match.value;}
+  calcCB();
+}
+function calcCB(){
+  const qty=parseInt(document.getElementById('cv-q')?.value)||10;
+  const wlb=parseFloat(document.getElementById('cv-wlb')?.value)||0.4;
+  const fl=parseFloat(document.getElementById('cv-fl')?.value)||8;
+  const wG=wlb*453.592;const tWG=wG*qty;const tWLb=tWG/453.592;
+  const fPV=wG*(fl/100);const tF=fPV*qty;
+  const el=document.getElementById('cv-calc');
+  if(el)el.innerHTML='<div class="cgold"><div class="ctitle">Batch calculation</div>'
+    +'<div class="dr"><span class="dk">Wax per vessel</span><span class="dv">'+wlb.toFixed(3)+' lbs / '+wG.toFixed(0)+'g</span></div>'
+    +'<div class="dr"><span class="dk">Total wax needed</span><span class="dv">'+tWLb.toFixed(2)+' lbs / '+tWG.toFixed(0)+'g</span></div>'
+    +'<div class="dr"><span class="dk">Fragrance per vessel</span><span class="dv">'+fPV.toFixed(1)+'g / '+(fPV/28.35).toFixed(2)+'oz</span></div>'
+    +'<div class="dr"><span class="dk">Total fragrance</span><span class="dv">'+tF.toFixed(0)+'g / '+(tF/28.35).toFixed(1)+'oz</span></div>'
+    +'<div class="dr"><span class="dk">Approx. pour time</span><span class="dv">'+Math.ceil(qty/5)*8+'-'+Math.ceil(qty/5)*12+' min</span></div></div>';
+}
+function svCB(){
+  const d=new Date();const vessel=document.getElementById('cv-vt')?.value||'9oz-concrete';
+  const sku='KLC-'+vessel.replace(/-/g,'').toUpperCase().slice(0,8)+'-'+String(d.getFullYear()).slice(-2)+pad(d.getMonth()+1,2)+pad(d.getDate(),2)+'-'+pad(S.cSeq);
+  const fid=document.getElementById('cv-f')?.value;
+  const frag=[...S.fragLib,...S.customScents].find(f=>f.id===fid);
+  S.cBatches.unshift({sku,vessel,qty:parseInt(document.getElementById('cv-q')?.value)||10,wax:document.getElementById('cv-wt')?.value,waxLb:document.getElementById('cv-wlb')?.value,wick:document.getElementById('cv-wick')?.value,frag:frag?.name||'--',load:document.getElementById('cv-fl')?.value,temp:document.getElementById('cv-pt')?.value,op:document.getElementById('cv-op')?.value||'--',lot:document.getElementById('cv-lot')?.value||'--',date:today(),passed:null,type:'candle'});
+  S.cSeq++;save();toast('Candle batch saved!');cTab('hist');
+}
+
+// SCENT STUDIO
+function scentHTML(){
+  return '<div class="al ag"><span>&#10024;</span><span>'+(online&&S.apiKey?'AI connected -- type any idea and get a full custom scent profile with label and website copy.':'Offline mode active -- intelligent engine uses 60+ scent database. Add API key in Settings for AI generation.')+'</span></div>'
+    +'<div class="cgold" style="margin-bottom:16px;"><div class="ctitle">Create from imagination</div>'
+    +'<div class="ff"><div class="fg"><label>Describe your scent idea</label>'
+    +'<textarea id="sc-idea" rows="3" placeholder="Examples: grandma house, thunderstorm, summer carnival, luxury hotel lobby, bonfire night, fresh rain on concrete..."></textarea></div></div>'
+    +'<button class="btn pri" onclick="createScent()" id="sc-btn" style="width:100%;justify-content:center;"><span id="sc-btxt">Create scent</span></button>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:6px;">'+(online&&S.apiKey?'AI generates fully custom profile, name, label copy, website description, Etsy listing, and Instagram seed.':'Offline engine matches your idea to best profile and generates all copy templates.')+'</div></div>'
+    +'<div class="card" style="margin-bottom:14px;"><div class="ctitle">Browse trending database</div>'
+    +'<div class="fg" style="margin-bottom:10px;"><label>Category</label><select id="sc-cat" onchange="showCat()">'
+    +Object.entries(CAT).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')
+    +'</select></div><div id="sc-cat-list"></div></div>'
+    +'<div id="sc-result"></div>';
+}
+function showCat(){
+  const cat=document.getElementById('sc-cat')?.value;
+  const sc=SDB[cat]||[];
+  const el=document.getElementById('sc-cat-list');if(!el)return;
+  el.innerHTML=sc.map(s=>'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--b);gap:10px;">'
+    +'<div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--t);">'+s.n+'</div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:2px;">'+s.c.split('.')[0]+'</div>'
+    +'<div style="font-size:11px;color:var(--t3);">Load: '+s.l+'% &middot; Top: '+s.t+' &middot; Mid: '+s.m+' &middot; Base: '+s.b+'</div></div>'
+    +'<button class="btn sm" onclick="useCatS(this)">Use</button></div>').join('')
+    ||'<div style="color:var(--t3);font-size:12px;padding:8px 0;">No scents in this category</div>';
+  // Store scent data on buttons
+  sc.forEach((s,i)=>{const btns=el.querySelectorAll('.btn.sm');if(btns[i])btns[i]._s=s;});
+}
+function useCatS(btn){
+  const s=btn._s;if(!s)return;
+  const label=s.n+' by Kuli Legacy -- '+s.c.split('.')[0].toLowerCase();
+  const website=s.n+' by Kuli Legacy. '+s.c+' Handcrafted in Schererville, Indiana. Built Different, Rise Above.';
+  const etsy='Kuli Legacy presents '+s.n+'. '+s.c+' Hand-poured into our signature concrete vessel. Black-owned family studio. Shop Kuli Legacy.';
+  showSR({name:s.n,top:s.t,mid:s.m,base:s.b,tP:s.tP,mP:s.mP,bP:s.bP,load:s.l,char:s.c,label,website,etsy,wax:s.wax,wick:s.wk,autoCategory:Object.keys(SDB).find(k=>SDB[k].find(x=>x.n===s.n))||'trending'});
+}
+async function createScent(){
+  const idea=document.getElementById('sc-idea')?.value?.trim();
+  if(!idea){toast('Enter a scent idea first');return;}
+  const btn=document.getElementById('sc-btxt');const res=document.getElementById('sc-result');
+  if(online&&S.apiKey){
+    btn.innerHTML='<span class="spin"></span> Creating...';
+    document.getElementById('sc-btn').disabled=true;
+    try{
+      const resp=await callClaude(
+        'Create a detailed candle scent profile for: "'+idea+'"\nReturn ONLY valid JSON:\n{"name":"[2-3 word evocative name]","top":"[specific top note]","tP":30,"mid":"[specific middle note]","mP":40,"base":"[specific base note]","bP":30,"load":8,"char":"[3 rich sentences: how it opens, develops mid-burn, and finishes -- and who this scent is for]","wax":"[best wax type for this scent]","wick":"[recommended wick size and brief reason why]","label":"[15-20 word premium label copy, Kuli Legacy brand voice, Built Different, Rise Above]","website":"[3 sentences: evocative opening, scent journey, brand story connection]","etsy":"[3 sentences: product description, concrete vessel mention, Black-owned family brand, call to action]","ig_seed":"[1 evocative Instagram caption opening line]","autoCategory":"[best fit: gourmand/romantic/uplifting/memory/seasonal/luxury/bold/future/trending]"}',
+        'You are a master perfumer and luxury brand copywriter for Kuli Legacy, a Black-owned family candle brand in Schererville Indiana. Taglines: Built Different, Rise Above. Founders: Denise, Will, Jaiden, Wilford Jr. Return only valid JSON, no other text.'
+      );
+      const d=JSON.parse(resp.replace(/```json|```/g,'').trim());
+      showSR(d);
+    }catch(e){
+      if(!online||e.message==='offline'){res.innerHTML='<div class="al aw"><span>&#9888;</span><span>Offline -- using intelligent scent engine.</span></div>';}
+      else{res.innerHTML='<div class="al ae"><span>&#9940;</span><span>Error: '+e.message+'</span></div>';}
+      showSR(offEng(idea));
+    }finally{btn.innerHTML='Create scent';document.getElementById('sc-btn').disabled=false;}
+  }else{showSR(offEng(idea));}
+}
+function showSR(d){
+  const el=document.getElementById('sc-result');if(!el)return;
+  const dj=JSON.stringify(d);
+  el.innerHTML='<div class="sr">'
+    +'<div class="sn">'+d.name+(d.offline?' <span style="font-size:12px;color:var(--t3);font-family:var(--sans);font-weight:400;">(offline profile)</span>':'')+'</div>'
+    +'<div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:14px;">'+(d.char||d.character||'')+'</div>'
+    +'<div class="sst">Scent profile</div>'
+    +'<div class="npills">'
+    +'<span class="np t">Top ('+(d.tP||30)+'%): '+d.top+'</span>'
+    +'<span class="np m">Mid ('+(d.mP||40)+'%): '+d.mid+'</span>'
+    +'<span class="np b">Base ('+(d.bP||30)+'%): '+d.base+'</span>'
+    +'<span class="np">Load: '+(d.load||8)+'%</span>'
+    +'</div>'
+    +'<div class="sst">Production recommendations</div>'
+    +'<div class="card">'
+    +'<div class="dr"><span class="dk">Recommended wax</span><span class="dv">'+(d.wax||d.wax_rec||'Soy wax')+'</span></div>'
+    +'<div class="dr"><span class="dk">Recommended wick</span><span class="dv">'+(d.wick||d.wick_rec||'CD-14')+'</span></div>'
+    +'</div>'
+    +(d.label?'<div class="sst">Label copy <span style="font-weight:400;font-size:9px;">(tap to copy)</span></div><div class="cb" id="cb-label">'+d.label+'</div>':'')
+    +(d.website?'<div class="sst">Website description <span style="font-weight:400;font-size:9px;">(tap to copy)</span></div><div class="cb" id="cb-web">'+d.website+'</div>':'')
+    +(d.etsy?'<div class="sst">Etsy listing <span style="font-weight:400;font-size:9px;">(tap to copy)</span></div><div class="cb" id="cb-etsy">'+d.etsy+'</div>':'')
+    +(d.ig_seed?'<div class="sst">Instagram seed <span style="font-weight:400;font-size:9px;">(tap to copy)</span></div><div class="cb" id="cb-ig">'+d.ig_seed+'</div>':'')
+    +'<div class="brow" style="margin-top:14px;"><button class="btn pri" id="save-scent-btn">Save to library</button></div>'
+    +'</div>';
+  // Attach copy handlers
+  ['label','web','etsy','ig'].forEach(id=>{const el2=document.getElementById('cb-'+id);if(el2)el2.onclick=()=>cpTxt(el2.textContent);});
+  // Attach save handler with data closure
+  const saveBtn=document.getElementById('save-scent-btn');
+  if(saveBtn)saveBtn.onclick=()=>saveScent(d);
+}
+function saveScent(d){
+  S.customScents.push({
+    id:'cs'+Date.now(),name:d.name,top:d.top,mid:d.mid,base:d.base,
+    tP:d.tP||30,mP:d.mP||40,bP:d.bP||30,load:d.load||8,
+    cat:d.autoCategory||autoCat(d.top,d.mid,d.base),
+    char:d.char||d.character||'',
+    wax:d.wax||d.wax_rec||'Soy wax',wick:d.wick||d.wick_rec||'CD-14',
+    trend:false,date:today()
+  });
+  save();toast(d.name+' saved to library!');cTab('lib');
+}
+
+// LIBRARY with detail overlay
+function libHTML(){
+  const all=[...S.fragLib,...S.customScents];
+  if(!all.length)return '<div class="empty">No fragrances yet. Create one in Scent studio or upload one.</div>';
+  const cats={};
+  all.forEach(f=>{const c=f.cat||'trending';if(!cats[c])cats[c]=[];cats[c].push(f);});
+  let html=Object.entries(cats).map(([cat,frags])=>
+    '<div class="slbl" style="margin-top:14px;">'+(CAT[cat]||cat)+'</div>'
+    +frags.map(f=>
+      '<div class="fc" data-fid="'+f.id+'">'
+      +'<div style="display:flex;align-items:flex-start;gap:8px;">'
+      +'<div style="flex:1;">'
+      +'<div style="display:flex;align-items:center;gap:8px;">'
+      +'<span style="font-size:14px;font-weight:700;color:var(--t);">'+f.name+'</span>'
+      +(f.trend?'<span class="bdg btrend">trending</span>':'')
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--t3);margin-top:3px;">Top: '+(f.top||'--')+' &middot; Mid: '+(f.mid||'--')+' &middot; Base: '+(f.base||'--')+'</div>'
+      +'<div style="font-size:11px;color:var(--t3);">Load: '+(f.load||8)+'% &middot; '+(f.stock||0)+'oz stock'+(f.wick?' &middot; Wick: '+f.wick:'')+'</div>'
+      +'<div style="font-size:11px;color:var(--gold);margin-top:4px;">Tap to view full profile &rarr;</div>'
+      +'</div></div></div>'
+    ).join('')
+  ).join('');
+  // Attach click handlers after render using event delegation
+  setTimeout(()=>{
+    document.querySelectorAll('.fc[data-fid]').forEach(el=>{
+      el.onclick=()=>openLD(el.getAttribute('data-fid'));
+    });
+  },50);
+  return html;
+}
+function openLD(id){
+  const f=[...S.fragLib,...S.customScents].find(x=>x.id===id);if(!f)return;
+  document.getElementById('ld-title').textContent=f.name;
+  const wax=f.wax||f.wax_rec||'Soy wax';
+  const wick=f.wick||f.wick_rec||'CD-14';
+  document.getElementById('ld-body').innerHTML=
+    '<div class="sr">'
+    +'<div class="sn">'+f.name+'</div>'
+    +'<div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:14px;">'+(f.char||f.character||'No description yet.')+'</div>'
+    +'<div class="sst">Scent profile</div>'
+    +'<div class="npills">'
+    +'<span class="np t">Top ('+(f.tP||30)+'%): '+(f.top||'--')+'</span>'
+    +'<span class="np m">Mid ('+(f.mP||40)+'%): '+(f.mid||'--')+'</span>'
+    +'<span class="np b">Base ('+(f.bP||30)+'%): '+(f.base||'--')+'</span>'
+    +'<span class="np">Load: '+(f.load||8)+'%</span>'
+    +'<span class="np">'+(CAT[f.cat]||f.cat||'--')+'</span>'
+    +'</div>'
+    +'<div class="sst">Production details</div>'
+    +'<div class="card">'
+    +'<div class="dr"><span class="dk">Wax recommendation</span><span class="dv">'+wax+'</span></div>'
+    +'<div class="dr"><span class="dk">Wick recommendation</span><span class="dv">'+wick+'</span></div>'
+    +'<div class="dr"><span class="dk">Fragrance load</span><span class="dv">'+(f.load||8)+'%</span></div>'
+    +'<div class="dr"><span class="dk">Stock on hand</span><span class="dv">'+(f.stock||0)+' oz</span></div>'
+    +'<div class="dr"><span class="dk">Cost per oz</span><span class="dv">'+(f.cost?'$'+f.cost:'--')+'</span></div>'
+    +'<div class="dr"><span class="dk">Supplier</span><span class="dv">'+(f.supplier||'--')+'</span></div>'
+    +'<div class="dr"><span class="dk">Category</span><span class="dv">'+(CAT[f.cat]||f.cat||'--')+'</span></div>'
+    +'<div class="dr"><span class="dk">Date added</span><span class="dv">'+(f.date||'--')+'</span></div>'
+    +'</div>'
+    +'<div class="brow">'
+    +'<button class="btn pri" id="ld-start-btn">Start candle batch with this scent &rarr;</button>'
+    +'<button class="btn danger" id="ld-rm-btn">Remove from library</button>'
+    +'</div></div>';
+  // Attach handlers safely
+  const startBtn=document.getElementById('ld-start-btn');
+  if(startBtn)startBtn.onclick=()=>startBatchWith(id);
+  const rmBtn=document.getElementById('ld-rm-btn');
+  if(rmBtn)rmBtn.onclick=()=>rmFrag(id);
+  document.getElementById('ldov').classList.add('show');
+}
+function closeLD(){document.getElementById('ldov').classList.remove('show');}
+function startBatchWith(fid){closeLD();goCnd('batch');setTimeout(()=>{const sel=document.getElementById('cv-f');if(sel){sel.value=fid;autoFF();}},200);}
+function rmFrag(id){if(confirm('Remove this fragrance?')){S.fragLib=S.fragLib.filter(f=>f.id!==id);S.customScents=S.customScents.filter(f=>f.id!==id);save();closeLD();cTab('lib');}}
+
+// UPLOAD SCENT
+function upHTML(){
+  return '<div class="card"><div class="ctitle">Add fragrance oil to library</div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Fragrance name</label><input type="text" id="uf-n" placeholder="e.g. Black Raspberry Vanilla"></div>'
+    +'<div class="fg"><label>Category</label><select id="uf-cat">'+Object.entries(CAT).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></div></div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Supplier</label><input type="text" id="uf-sup" placeholder="e.g. Brambleberry"></div>'
+    +'<div class="fg"><label>Cost per oz ($)</label><input type="number" id="uf-cost" value="2.50" step="0.10"></div></div>'
+    +'<div class="fg3">'
+    +'<div class="fg"><label>Stock (oz)</label><input type="number" id="uf-s" value="16"></div>'
+    +'<div class="fg"><label>Top note</label><input type="text" id="uf-top" placeholder="e.g. citrus"></div>'
+    +'<div class="fg"><label>Mid note</label><input type="text" id="uf-mid" placeholder="e.g. floral"></div></div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Base note</label><input type="text" id="uf-base" placeholder="e.g. musk"></div>'
+    +'<div class="fg"><label>Load %</label><input type="number" id="uf-load" value="8" min="4" max="12"></div></div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Rec. wick</label><input type="text" id="uf-wick" placeholder="e.g. CD-14"></div>'
+    +'<div class="fg"><label>Rec. wax</label><input type="text" id="uf-wax" placeholder="e.g. Soy wax"></div></div>'
+    +'<div class="ff"><div class="fg"><label>Scent character</label><textarea id="uf-char" rows="2" placeholder="How does it smell? Opening, development, finish..."></textarea></div></div>'
+    +'<button class="btn pri" onclick="addFrag()" style="width:100%;justify-content:center;">Add to library</button></div>';
+}
+function addFrag(){
+  const name=document.getElementById('uf-n')?.value?.trim();if(!name){toast('Enter fragrance name');return;}
+  const top=document.getElementById('uf-top')?.value||'';
+  const mid=document.getElementById('uf-mid')?.value||'';
+  const base=document.getElementById('uf-base')?.value||'';
+  const cat=document.getElementById('uf-cat')?.value||autoCat(top,mid,base);
+  S.fragLib.push({id:'f'+Date.now(),name,cat,supplier:document.getElementById('uf-sup')?.value||'',cost:parseFloat(document.getElementById('uf-cost')?.value)||2.5,stock:parseFloat(document.getElementById('uf-s')?.value)||16,top,mid,base,load:parseFloat(document.getElementById('uf-load')?.value)||8,wick:document.getElementById('uf-wick')?.value||'CD-14',wax:document.getElementById('uf-wax')?.value||'Soy wax',char:document.getElementById('uf-char')?.value||'',trend:false,date:today()});
+  save();toast(name+' added!');cTab('lib');
+}
+
+// TROUBLESHOOT
+function tsHTML(){
+  const items=[
+    ["Wax tunneling (burning down the middle)","Wick too small for vessel diameter. Fix: Upgrade wick size (e.g. CD-14 to CD-18). The melt pool should reach edge-to-edge within 2-3 hours of first burn. Always do a burn test before selling."],
+    ["Candle won&#39;t light or wick won&#39;t stay lit","Wick too short, drowned in wax, or fragrance load too high clogging the wick. Fix: Trim wick to 6mm before every burn. If drowned, carefully dig out around wick. If consistent issue, reduce fragrance load by 1-2%."],
+    ["Wax separating from concrete vessel inside (wet spots, pull away)","Wax shrinkage during cooling -- natural with soy wax and concrete. Fix: Try coconut-soy blend (less shrinkage). Pour at slightly lower temp (125-130F). Let cool slowly away from drafts or A/C. Pre-warm concrete vessels to 75-80F before pouring."],
+    ["Sinkholes or craters on top surface","Wax cooled too fast or gas escaped during set. Fix: Do a second top-off pour at 10F below original pour temp. Use a heat gun gently to smooth surface after set."],
+    ["Frosting (white powdery coating on wax)","Natural soy wax crystallization -- harmless but affects appearance. Fix: Use coconut-soy blend. Add small amount of stearic acid. Avoid pouring too hot. Disclose on listing that frosting is natural to soy wax."],
+    ["Scent throw too weak (hot or cold)","Fragrance load too low, wrong wax, or insufficient cure time. Fix: Increase load by 1-2% (max 12%). Use soy or coconut wax for better throw. Cure minimum 48 hrs -- 7 days is ideal for maximum throw."],
+    ["Wax discoloration or yellowing","Vanilla-heavy fragrances naturally cause yellowing from vanillin -- harmless. Fix: Cosmetic and normal. Use UV inhibitor additive. Consider colored wax to mask it. Disclose on listings."],
+    ["Bubbles or pockmarks on surface","Air trapped during pour or poured too hot. Fix: Pour slower at lower temp (130-140F). Tap vessel firmly after pour to release air. Use skewer to pop surface bubbles before wax sets."],
+    ["Wick mushrooming (black ball on tip)","Wick too large or fragrance load too high causing carbon buildup. Fix: Trim wick to 6mm before every burn. Try one size smaller wick. Reduce fragrance load by 1%."],
+    ["Concrete vessel too cold -- wax not sticking properly","Cold vessel causes wax to set too fast on contact, poor adhesion. Fix: Pre-warm concrete vessels to 75-80F before every pour. Critical in Indiana winters."]
+  ];
+  return '<div class="al ai"><span>i</span><span>Tap any issue to see the diagnosis and fix. Indiana winters: always pre-warm concrete vessels.</span></div>'
+    +items.map(function(item,i){
+      return '<div class="tsi" onclick="togTS('+i+')">'
+        +'<div class="tsq">'+item[0]+'<span id="ta-'+i+'" style="color:var(--gold);flex-shrink:0;font-size:18px;">+</span></div>'
+        +'<div class="tsa" id="ts-'+i+'">'+item[1]+'</div>'
+        +'</div>';
+    }).join('');
+}
+function togTS(i){const a=document.getElementById('ts-'+i);const ar=document.getElementById('ta-'+i);if(!a)return;a.classList.toggle('open');if(ar)ar.textContent=a.classList.contains('open')?'-':'+';}
+
+// STORAGE GUIDE
+function storHTML(){
+  return '<div class="al ag"><span>&#9654;</span><span>Proper storage protects scent integrity and extends shelf life. Follow these for Kuli Legacy quality standards.</span></div>'
+    +'<div class="slbl">Finished candles</div>'
+    +[['Temperature','Store at 65-75F. Avoid unheated garages in Indiana winters -- wax cracks below 50F.'],
+      ['Humidity','Keep below 60% humidity. Concrete absorbs moisture. Use silica packets in storage boxes.'],
+      ['Light','Away from direct sunlight or UV -- causes wax yellowing and scent fade.'],
+      ['Stacking','Do not stack concrete vessels -- they chip. Store single layer or with foam separators.'],
+      ['Shelf life','Optimum scent: use within 12 months of pour. Soy wax good up to 2 years if stored correctly.'],
+      ['Lids','Always store with lids on or dust cover -- prevents dust and scent evaporation.']
+    ].map(([t,b])=>'<div class="sgi"><div class="sgt">'+t+'</div><div class="sgb">'+b+'</div></div>').join('')
+    +'<div class="slbl">Raw materials</div>'
+    +[['Fragrance oils','Sealed dark bottle, cool dry place, away from heat. Shelf life 1-2 years. Note lot number and date received.'],
+      ['Soy wax','Sealed bag, dry location, 60-80F. Avoid humidity. Use FIFO (oldest stock first).'],
+      ['Wicks','Dry location in sealed container. Keep flat -- bent wicks cause uneven burn.']
+    ].map(([t,b])=>'<div class="sgi"><div class="sgt">'+t+'</div><div class="sgb">'+b+'</div></div>').join('')
+    +'<div class="slbl">Show inventory</div>'
+    +[['Transport','Wrap each vessel in tissue paper or foam. Never allow concrete-to-concrete contact in transit.'],
+      ['Weather','Do not leave in hot car -- wax softens above 85F. Indiana summer shows: keep in cooler bag.'],
+      ['Display','Keep out of direct sun during shows. Bring small fan if indoor show is warm to prevent soft wax.']
+    ].map(([t,b])=>'<div class="sgi"><div class="sgt">'+t+'</div><div class="sgb">'+b+'</div></div>').join('');
+}
+
+function cHistHTML(){
+  if(!S.cBatches.length)return '<div class="empty">No candle batches saved yet</div>';
+  return S.cBatches.map(b=>'<div class="hr"><div class="ht"><span class="hsku">'+b.sku+'</span><span class="bdg '+(b.passed===null?'bpend':'bpass')+'">'+(b.passed===null?'pending':'passed')+'</span></div><div class="hmeta" style="margin-top:3px;">'+b.date+' &middot; '+b.vessel+' &middot; '+(b.wax||'--')+' &middot; Wick: '+(b.wick||'--')+' &middot; '+(b.frag||'--')+' &middot; '+(b.waxLb||'--')+'lb/vessel &middot; qty '+b.qty+' &middot; op: '+b.op+'</div></div>').join('');
+}
+
+// ORDERS
+function rOrders(){
+  const el=document.getElementById('s-orders');
+  el.innerHTML='<div class="ptitle">Orders</div><div class="psub">Website &middot; Etsy &middot; In-person &middot; Shows</div>'
+    +'<div class="brow" style="margin-bottom:16px;"><button class="btn pri" onclick="togAO()">+ New order</button><span style="font-size:12px;color:var(--t3);padding:10px 0;">'+S.orders.length+' total</span></div>'
+    +'<div id="ao-f"></div>'
+    +(S.orders.length?S.orders.map((o,i)=>'<div class="oc"><div class="oh"><div><div class="oid">'+o.id+'</div><div class="ocu">'+o.customer+' &middot; '+o.channel+'</div></div><select class="ssel" onchange="updOS('+i+',this.value)">'+['new','production','packed','shipped','complete'].map(s=>'<option'+(o.status===s?' selected':'')+'>'+s+'</option>').join('')+'</select></div><div class="oit">'+o.items.map(i=>i.name+' x'+i.qty).join(', ')+'</div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-top:6px;"><span>'+o.date+'</span><span style="color:var(--gold);font-weight:700;">$'+o.total.toFixed(2)+'</span></div>'+(o.tracking?'<div style="font-size:11px;color:var(--t3);margin-top:3px;">Track: '+o.tracking+'</div>':'')+'</div>').join(''):'<div class="empty">No orders yet</div>');
+}
+function togAO(){
+  const el=document.getElementById('ao-f');
+  if(el.innerHTML){el.innerHTML='';return;}
+  el.innerHTML='<div class="card" style="margin-bottom:12px;"><div class="ctitle">New order</div>'
+    +'<div class="fg2"><div class="fg"><label>Customer</label><input type="text" id="o-c" placeholder="Full name"></div>'
+    +'<div class="fg"><label>Channel</label><select id="o-ch"><option>website</option><option>etsy</option><option>in-person</option><option>show</option></select></div></div>'
+    +'<div class="ff"><div class="fg"><label>Items (Product x qty per line)</label><textarea id="o-i" rows="3" placeholder="9oz Concrete Candle x 2\nWood Keychain x 1"></textarea></div></div>'
+    +'<div class="fg2"><div class="fg"><label>Total ($)</label><input type="number" id="o-t" placeholder="0.00" step="0.01"></div>'
+    +'<div class="fg"><label>Notes</label><input type="text" id="o-n" placeholder="Optional"></div></div>'
+    +'<div class="brow"><button class="btn pri" onclick="svO()">Save</button><button class="btn" onclick="document.getElementById(\'ao-f\').innerHTML=\'\'">Cancel</button></div></div>';
+}
+function svO(){
+  const c=document.getElementById('o-c')?.value?.trim();if(!c){toast('Enter customer name');return;}
+  const items=(document.getElementById('o-i')?.value||'').split('\n').filter(l=>l.trim()).map(l=>{const p=l.split('x');return{name:(p[0]||'').trim(),qty:parseInt(p[1])||1};});
+  S.orders.unshift({id:genOID(),customer:c,channel:document.getElementById('o-ch')?.value||'website',items,total:parseFloat(document.getElementById('o-t')?.value)||0,notes:document.getElementById('o-n')?.value||'',status:'new',date:iso(),tracking:''});
+  S.oSeq++;save();document.getElementById('ao-f').innerHTML='';rOrders();
+}
+function updOS(i,s){S.orders[i].status=s;if(s==='shipped'){const t=prompt('Tracking number:');if(t)S.orders[i].tracking=t;}save();rOrders();}
+
+// INVENTORY
+function rInv(){
+  const el=document.getElementById('s-inventory');
+  el.innerHTML='<div class="ptitle">Inventory</div><div class="psub">Raw materials &middot; Finished goods &middot; Lot tracking</div>'
+    +'<div class="slbl">Concrete materials</div>'+['port','sil','pig','sp'].map(icrd).join('')
+    +'<div class="slbl">Candle materials</div>'+['wax','wick','frag'].map(icrd).join('')
+    +'<div class="slbl">Finished goods</div>'
+    +[{n:'9oz Concrete Vessel',k:'p9'},{n:'5oz Concrete Vessel',k:'p5'},{n:'9oz Concrete Candle',k:'pc9'},{n:'5oz Concrete Candle',k:'pc5'},{n:'Candle Melt',k:'pmelt'},{n:'Kuli Legacy Tee',k:'ptee'},{n:'Kuli Legacy Hoodie',k:'phood'},{n:'Wood Keychain',k:'pkey'}].map(p=>'<div class="ivc" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin-bottom:8px;"><div><div style="font-size:13px;font-weight:700;">'+p.n+'</div><div style="font-size:11px;color:var(--t3);">$<input type="number" value="'+S.prices[p.k]+'" step="0.50" style="width:65px;font-size:11px;padding:2px 4px;background:transparent;border:none;border-bottom:1px solid var(--b2);color:var(--t3);" oninput="S.prices[\''+p.k+'\']=parseFloat(this.value)||0;save();"> retail</div></div></div>').join('');
+}
+function icrd(id){
+  const b=S.bags[id];
+  const pct=Math.min(100,(+b.stock/Math.max(+b.reorder*3,1))*100);
+  const low=+b.stock<=+b.reorder,crit=+b.stock===0;
+  const col=crit?'var(--red)':low?'var(--yellow)':'var(--green)';
+  const lc=(+b.paid||0)+(+b.ship||0);
+  return '<div class="ivc'+(crit?' crit':low?' low':'')+'" style="margin-bottom:10px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;"><div>'
+    +'<div style="font-size:13px;font-weight:700;">'+b.name+'</div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:2px;">'+(b.bagLb?b.bagLb+' lb/bag &middot; ':'')+'<span style="color:'+col+';">'+(crit?'Out of stock':low?'Reorder now':'In stock')+'</span></div>'
+    +'</div></div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Bags on hand</label><input type="number" value="'+b.stock+'" min="0" step="0.001" oninput="S.bags[\''+id+'\'].stock=parseFloat(this.value)||0;save();"></div>'
+    +'<div class="fg"><label>Reorder at</label><input type="number" value="'+b.reorder+'" min="0" oninput="S.bags[\''+id+'\'].reorder=parseInt(this.value)||0;save();"></div>'
+    +'<div class="fg"><label>Bag price ($)</label><input type="number" value="'+b.paid+'" step="0.50" oninput="S.bags[\''+id+'\'].paid=parseFloat(this.value)||0;save();"></div>'
+    +'<div class="fg"><label>Tax+ship ($)</label><input type="number" value="'+b.ship+'" step="0.50" oninput="S.bags[\''+id+'\'].ship=parseFloat(this.value)||0;save();"></div>'
+    +'</div>'
+    +'<div class="fg" style="margin-bottom:6px;"><label>Lot #</label><input type="text" value="'+(b.lot||'')+'" placeholder="L-001" oninput="S.bags[\''+id+'\'].lot=this.value;save();"></div>'
+    +'<div class="ivbw"><div class="ivb" style="width:'+pct+'%;background:'+col+';"></div></div>'
+    +'<div style="font-size:10px;color:var(--t3);margin-top:2px;">Landed: $'+lc.toFixed(2)+'/bag'+(b.bagLb?' &middot; $'+(lc/(b.bagLb*453.592)).toFixed(5)+'/g':'')+'</div>'
+    +'</div>';
+}
+
+// SHOW MODE
+function rShow(){
+  const el=document.getElementById('s-show');
+  if(!S.activeShow){
+    el.innerHTML='<div class="ptitle">Show mode</div><div class="psub">Track in-person sales -- works offline</div>'
+      +'<div class="cgold" style="margin-bottom:16px;"><div class="ctitle">Start a new show</div>'
+      +'<div class="ff"><div class="fg"><label>Show name</label><input type="text" id="sh-n" placeholder="e.g. Indy Artisan Market" style="font-size:16px;"></div></div>'
+      +'<div class="fg2"><div class="fg"><label>Date</label><input type="date" id="sh-d" value="'+iso()+'"></div><div class="fg"><label>Location</label><input type="text" id="sh-l" placeholder="City, IN"></div></div>'
+      +'<button class="btn pri" style="width:100%;justify-content:center;padding:14px;font-size:15px;margin-top:4px;" onclick="startSh()">Start show &rarr;</button></div>'
+      +(S.shows.length?'<div class="slbl">Past shows</div>'+S.shows.map(sh=>'<div class="card" style="padding:12px 14px;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">'+sh.name+'</span><span style="color:var(--gold);font-weight:800;font-family:var(--mono);">$'+sh.sales.reduce((a,s)=>a+s.price,0).toFixed(0)+'</span></div><div style="font-size:11px;color:var(--t3);margin-top:3px;">'+sh.date+' &middot; '+sh.location+' &middot; '+sh.sales.length+' items sold</div></div>').join(''):'');
+    return;
+  }
+  const sh=S.activeShow;const rev=sh.sales.reduce((a,s)=>a+s.price,0);
+  const PRODS=[{id:'p1',n:'9oz Vessel',p:S.prices.p9},{id:'p2',n:'5oz Vessel',p:S.prices.p5},{id:'p3',n:'9oz Candle',p:S.prices.pc9},{id:'p4',n:'5oz Candle',p:S.prices.pc5},{id:'p5',n:'Melt',p:S.prices.pmelt},{id:'p6',n:'Tee',p:S.prices.ptee},{id:'p7',n:'Hoodie',p:S.prices.phood},{id:'p8',n:'Keychain',p:S.prices.pkey}];
+  el.innerHTML='<div class="show-banner"><div><div style="font-size:15px;font-weight:800;">'+sh.name+'</div><div style="font-size:11px;margin-top:2px;">'+sh.location+' &middot; '+sh.date+'</div></div><button class="btn sm" style="background:rgba(0,0,0,.2);border-color:rgba(0,0,0,.2);color:#000;" onclick="endSh()">End show</button></div>'
+    +'<div class="metrics" style="margin-bottom:16px;">'
+    +'<div class="mc"><div class="ml">Units sold</div><div class="mv">'+sh.sales.length+'</div></div>'
+    +'<div class="mc"><div class="ml">Revenue</div><div class="mv" style="color:var(--gold);">$'+rev.toFixed(0)+'</div></div>'
+    +'<div class="mc"><div class="ml">Avg sale</div><div class="mv">'+(sh.sales.length>0?'$'+(rev/sh.sales.length).toFixed(0):'--')+'</div></div>'
+    +'</div>'
+    +'<div class="show-grid">'+PRODS.map(p=>{const sold=sh.sales.filter(s=>s.pid===p.id).length;return'<div class="shc" onclick="recS(\''+p.id+'\',\''+p.n+'\','+p.p+')"><div class="shc-n">'+p.n+'</div><div class="shc-q">'+sold+'</div><div class="shc-p">$'+p.p+' each</div></div>';}).join('')+'</div>'
+    +(sh.sales.length?'<div class="slbl">Sales log</div><div class="card">'+sh.sales.slice().reverse().slice(0,15).map(s=>'<div class="dr"><span class="dk">'+s.name+'</span><span class="dv" style="color:var(--green);">$'+s.price+'</span></div>').join('')+'</div>':'');
+}
+function startSh(){const n=document.getElementById('sh-n')?.value?.trim();if(!n){toast('Enter show name');return;}S.activeShow={id:'SH'+Date.now(),name:n,date:document.getElementById('sh-d')?.value||iso(),location:document.getElementById('sh-l')?.value||'--',sales:[]};save();rShow();}
+function recS(pid,name,price){if(!S.activeShow)return;S.activeShow.sales.push({pid,name,price,time:new Date().toLocaleTimeString()});save();rShow();}
+function endSh(){if(!confirm('End show and log as completed order?'))return;const sh=S.activeShow;const g={};sh.sales.forEach(s=>{g[s.name]=(g[s.name]||0)+1;});S.orders.unshift({id:genOID(),customer:'Show: '+sh.name,channel:'show',items:Object.entries(g).map(([n,q])=>({name:n,qty:q})),total:sh.sales.reduce((a,s)=>a+s.price,0),notes:sh.location,status:'complete',date:sh.date,tracking:''});S.oSeq++;S.shows.unshift(sh);S.activeShow=null;save();rShow();}
+
+// REPORTS
+function rReports(){
+  const el=document.getElementById('s-reports');
+  const rev=S.orders.reduce((a,o)=>a+o.total,0);
+  const byCh=S.orders.reduce((a,o)=>{a[o.channel]=(a[o.channel]||0)+o.total;return a;},{});
+  const pb=S.batches.filter(b=>b.passed!==null);
+  const pr=pb.length>0?((pb.filter(b=>b.passed===b.qty).length/pb.length)*100).toFixed(0)+'%':'--';
+  const iv=Object.entries(S.bags).reduce((a,[,b])=>a+(+b.stock)*((+b.paid||0)+(+b.ship||0)),0);
+  el.innerHTML='<div class="ptitle">Reports</div><div class="psub">Revenue &middot; Production &middot; Inventory &middot; Margins</div>'
+    +'<div class="metrics">'
+    +'<div class="mc"><div class="ml">Revenue</div><div class="mv">$'+rev.toFixed(0)+'</div></div>'
+    +'<div class="mc"><div class="ml">Orders</div><div class="mv">'+S.orders.length+'</div></div>'
+    +'<div class="mc"><div class="ml">Batches</div><div class="mv">'+(S.batches.length+S.cBatches.length)+'</div></div>'
+    +'<div class="mc"><div class="ml">QC pass</div><div class="mv">'+pr+'</div></div>'
+    +'<div class="mc"><div class="ml">Inv value</div><div class="mv">$'+iv.toFixed(0)+'</div></div>'
+    +'<div class="mc"><div class="ml">Shows</div><div class="mv">'+S.shows.length+'</div></div>'
+    +'</div>'
+    +'<div class="slbl">Revenue by channel</div>'
+    +'<div class="card">'+(Object.entries(byCh).length?Object.entries(byCh).map(([ch,r])=>'<div class="dr"><span class="dk">'+ch+'</span><span class="dv" style="color:var(--gold);">$'+r.toFixed(2)+'</span></div>').join(''):'<div style="font-size:12px;color:var(--t3);padding:8px 0;">No sales yet</div>')+'</div>'
+    +'<div class="slbl">Recent batches</div>'
+    +'<div class="card">'+([...S.batches,...S.cBatches].slice(0,8).length?[...S.batches,...S.cBatches].slice(0,8).map(b=>'<div class="dr"><span class="dk" style="font-family:var(--mono);font-size:11px;">'+b.sku+'</span><span class="dv"><span class="bdg '+(b.passed===null?'bpend':+b.passed===+b.qty?'bpass':'bfail')+'">'+(b.passed===null?'pending':b.passed+'/'+b.qty)+'</span></span></div>').join(''):'<div style="font-size:12px;color:var(--t3);padding:8px 0;">No batches yet</div>')+'</div>';
+}
+
+// CONTENT STUDIO
+function rContent(){
+  const el=document.getElementById('s-content');
+  el.innerHTML='<div class="ptitle">Content studio</div><div class="psub">AI captions &middot; TikTok &middot; Instagram &middot; Website</div>'
+    +(!S.apiKey?'<div class="al aw"><span>&#9888;</span><span>Add your API key in Settings to enable AI. Brand templates available offline.</span></div>':'')
+    +(!online&&S.apiKey?'<div class="al aw"><span>&#128246;</span><span>Offline -- using Kuli Legacy brand voice templates.</span></div>':'')
+    +'<div class="ptabs">'
+    +'<button class="ptab on" id="ctn-c" onclick="ctnTab(\'c\')">Create post</button>'
+    +'<button class="ptab" id="ctn-p" onclick="ctnTab(\'p\')">Calendar</button>'
+    +'</div><div id="ctn-body"></div>';
+  ctnTab('c');
+}
+function ctnTab(t){
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('on'));
+  const bt=document.getElementById('ctn-'+t);if(bt)bt.classList.add('on');
+  const el=document.getElementById('ctn-body');if(!el)return;
+  if(t==='c')el.innerHTML=createPostHTML();
+  else if(t==='p')el.innerHTML=planHTML();
+}
+function createPostHTML(){
+  return '<div class="slbl">Product photo (optional)</div>'
+    +'<div class="imu" onclick="document.getElementById(\'iinp\').click()">'
+    +'<input type="file" id="iinp" accept="image/*" onchange="loadI(this)">'
+    +'<img id="iprev">'
+    +'<div id="iph"><div style="font-size:32px;margin-bottom:8px;">&#128248;</div><div style="font-size:13px;color:var(--t3);">Tap to upload a product photo</div><div style="font-size:11px;color:var(--t3);margin-top:4px;">AI analyzes it for better content</div></div>'
+    +'</div>'
+    +'<div class="card" style="margin-top:14px;"><div class="ctitle">Post details</div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Product</label><select id="cnt-p"><option value="">Select product</option><option>9oz Concrete Vessel</option><option>5oz Concrete Vessel</option><option>9oz Concrete Candle</option><option>5oz Concrete Candle</option><option>Candle Melt</option><option>Kuli Legacy Tee</option><option>Kuli Legacy Hoodie</option><option>Wood Keychain</option></select></div>'
+    +'<div class="fg"><label>Platform</label><select id="cnt-pl"><option value="both">TikTok + Instagram</option><option value="tiktok">TikTok only</option><option value="instagram">Instagram only</option><option value="website">Website copy</option></select></div>'
+    +'</div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Vibe</label><select id="cnt-v"><option>Inspiring</option><option>Behind the scenes</option><option>Product showcase</option><option>Family story</option><option>Promotional</option><option>Educational</option><option>Trendy and viral</option></select></div>'
+    +'<div class="fg"><label>Call to action</label><select id="cnt-c"><option>Shop now</option><option>Link in bio</option><option>Comment below</option><option>Tag a friend</option><option>Save this post</option></select></div>'
+    +'</div>'
+    +'<div class="ff"><div class="fg"><label>Additional context</label><textarea id="cnt-x" rows="2" placeholder="New scent launch, limited edition, made this weekend in our garage studio..."></textarea></div></div>'
+    +'<button class="btn pri" style="width:100%;justify-content:center;" onclick="genC()"><span id="cnt-bt">Generate content</span></button></div>'
+    +'<div id="cnt-res"></div>';
+}
+function loadI(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{capturedImg=e.target.result;const prev=document.getElementById('iprev');const ph=document.getElementById('iph');if(prev){prev.src=capturedImg;prev.style.display='block';}if(ph)ph.style.display='none';};
+  reader.readAsDataURL(file);
+}
+async function genC(){
+  const prod=document.getElementById('cnt-p')?.value||'Kuli Legacy product';
+  const plat=document.getElementById('cnt-pl')?.value||'both';
+  const vibe=document.getElementById('cnt-v')?.value||'Inspiring';
+  const cta=document.getElementById('cnt-c')?.value||'Shop now';
+  const ctx=document.getElementById('cnt-x')?.value||'';
+  const btn=document.getElementById('cnt-bt');const res=document.getElementById('cnt-res');
+  if(online&&S.apiKey){
+    btn.innerHTML='<span class="spin"></span> Writing...';
+    try{
+      const prompt='Create social media content for Kuli Legacy.\nProduct: '+prod+'\nPlatform: '+plat+'\nVibe: '+vibe+'\nCTA: '+cta+'\nContext: '+(ctx||'none')+'\n'+(capturedImg?'Product image provided -- analyze and use it to write better content.':'')+'\nBrand: Black-owned, woman-owned, family-owned. Denise, Will, Jaiden, Wilford Jr. Schererville Indiana. Taglines: Built Different, Rise Above.\nReturn ONLY valid JSON: {"tiktok_caption":"[150-200 chars with emojis]","tiktok_hook":"[3 sec hook]","instagram_caption":"[150-300 chars]","hashtags":"[20 hashtags]","story_text":"[15-word overlay]","website_blurb":"[2-3 sentence product description]"}';
+      const messages=capturedImg?[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:capturedImg.split(',')[1]}},{type:'text',text:prompt}]}]:[{role:'user',content:prompt}];
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'You are a social media content creator for Kuli Legacy, a premium Black-owned family candle brand. Return only valid JSON.',messages})});
+      const data=await r.json();
+      const clean=data.content[0].text.replace(/```json|```/g,'').trim();
+      showCR(JSON.parse(clean),plat);
+    }catch(e){offC(prod,vibe,cta,plat);}
+    finally{btn.innerHTML='Generate content';}
+  }else{offC(prod,vibe,cta,plat);}
+}
+function offC(prod,vibe,cta,plat){
+  const T={
+    'Inspiring':{tt:'Built different. This '+prod+' was hand-crafted with intention by our family. Rise above the ordinary. \uD83D\uDDA4',ig:'Every piece tells our story. This '+prod+' is handcrafted by our family in Schererville, Indiana. Black-owned. Woman-owned. Family-owned. Built Different. Rise Above. \uD83D\uDDA4\u2728'},
+    'Behind the scenes':{tt:'Behind the pour on our '+prod+'. Real hands. Real family. Real craft. This is Built Different. \uD83D\uDDA4',ig:'Behind the scenes at Kuli Legacy. Every '+prod+' starts right here, measured, mixed, and poured by hand. Our family built this from the ground up. That is Built Different.'},
+    'Product showcase':{tt:'Meet the '+prod+'. Clean. Bold. Concrete. This is luxury built different. '+cta+'. \uD83D\uDDA4',ig:'Introducing the '+prod+' by Kuli Legacy. Hand-poured in our studio. Finished to perfection. Built to last. '+cta+'. \uD83D\uDDA4'},
+    'Family story':{tt:'A family built this. Kuli Legacy is Denise, Will, Jaiden, and Wilford Jr. We pour our hearts into every '+prod+'. Rise Above.',ig:'This is not just a '+prod+'. It is our family dream made real. Kuli Legacy was built by us, for you. Black-owned. Woman-owned. Family first. \uD83D\uDDA4\u2728'}
+  };
+  const t=T[vibe]||T['Inspiring'];
+  const ht='#kulilegacy #builtdifferent #riseabove #blackownedbusiness #womanowned #familybusiness #concretecandles #handmade #luxury #candles #homedecor #smallbusiness #etsy #indianamaker #artisan #blackbusiness #supportblackbusiness #luxurycandles #concretevessel #handcrafted';
+  showCR({tiktok_caption:t.tt,tiktok_hook:'Wait till you see this '+prod+'...',instagram_caption:t.ig,hashtags:ht,story_text:'Built Different -- Shop Kuli Legacy',website_blurb:'The '+prod+' by Kuli Legacy. Handcrafted in Schererville, Indiana by a Black-owned family business. Every piece is made with intention and built to last.'},plat);
+}
+function showCR(d,plat){
+  const el=document.getElementById('cnt-res');if(!el)return;
+  const ttc=d.tiktok_caption+'\n\n'+d.hashtags;
+  const igc=d.instagram_caption+'\n\n'+d.hashtags;
+  el.innerHTML=
+    (plat!=='instagram'&&plat!=='website'?'<div class="cr"><span class="ptag tt">TikTok</span><div style="font-size:11px;color:var(--t3);margin-bottom:6px;">Hook: "'+d.tiktok_hook+'"</div><div style="font-size:13px;color:var(--t);line-height:1.6;margin-bottom:8px;">'+d.tiktok_caption+'</div><div class="htags">'+d.hashtags+'</div><div class="brow"><button class="btn sm" id="tt-copy">Copy</button><a href="https://www.tiktok.com" target="_blank" class="btn sm go" style="text-decoration:none;">Open TikTok &rarr;</a></div></div>':'')
+    +(plat!=='tiktok'&&plat!=='website'?'<div class="cr"><span class="ptag ig">Instagram</span><div style="font-size:13px;color:var(--t);line-height:1.6;margin-bottom:8px;">'+d.instagram_caption+'</div><div class="htags">'+d.hashtags+'</div><div style="margin-top:10px;padding:10px;background:var(--bg2);border-radius:var(--r);font-size:13px;font-weight:700;text-align:center;border:1px solid var(--b2);">Story: '+d.story_text+'</div><div class="brow"><button class="btn sm" id="ig-copy">Copy</button><a href="https://www.instagram.com" target="_blank" class="btn sm go" style="text-decoration:none;">Open Instagram &rarr;</a></div></div>':'')
+    +(plat==='website'||plat==='both'?'<div class="cr"><span class="ptag wb">Website</span><div style="font-size:13px;color:var(--t);line-height:1.7;margin-bottom:8px;">'+d.website_blurb+'</div><div class="brow"><button class="btn sm" id="wb-copy">Copy</button></div></div>':'')
+    +'<div style="text-align:center;margin-top:8px;"><button class="btn sm" id="dl-btn">Download all as text</button></div>';
+  const ttb=document.getElementById('tt-copy');if(ttb)ttb.onclick=()=>cpTxt(ttc);
+  const igb=document.getElementById('ig-copy');if(igb)igb.onclick=()=>cpTxt(igc);
+  const wbb=document.getElementById('wb-copy');if(wbb)wbb.onclick=()=>cpTxt(d.website_blurb);
+  const dlb=document.getElementById('dl-btn');if(dlb)dlb.onclick=()=>dlC(d);
+}
+function dlC(d){
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent('KULI LEGACY CONTENT\n'+today()+'\n\nTIKTOK\nHook: '+d.tiktok_hook+'\n\n'+d.tiktok_caption+'\n\n'+d.hashtags+'\n\nINSTAGRAM\n'+d.instagram_caption+'\n\n'+d.hashtags+'\n\nStory: '+d.story_text+'\n\nWEBSITE\n'+d.website_blurb);
+  a.download='kuli_content_'+iso()+'.txt';a.click();
+}
+function planHTML(){
+  return '<div class="brow" style="margin-bottom:12px;"><button class="btn pri" onclick="togAC()">+ Plan a post</button></div>'
+    +'<div id="ac-f"></div>'
+    +'<div class="slbl">Content calendar</div>'
+    +'<div id="cal-list">'
+    +(S.content.length?S.content.map((c,i)=>'<div class="card" style="padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span class="ptag '+(c.plat==='tiktok'?'tt':c.plat==='instagram'?'ig':'wb')+'">'+c.plat+'</span><span style="font-size:11px;color:var(--t3);">'+c.date+'</span></div><div style="font-size:13px;font-weight:700;">'+c.title+'</div>'+(c.prod?'<div style="font-size:11px;color:var(--t3);margin-top:2px;">'+c.prod+'</div>':'')+'</div><button class="btn sm danger" onclick="rmC('+i+')">x</button></div>').join(''):'<div class="empty">No content planned yet</div>')
+    +'</div>';
+}
+function togAC(){
+  const el=document.getElementById('ac-f');
+  if(el.innerHTML){el.innerHTML='';return;}
+  el.innerHTML='<div class="card" style="margin-bottom:12px;"><div class="ctitle">Plan a post</div>'
+    +'<div class="fg2"><div class="fg"><label>Title</label><input type="text" id="ac-t" placeholder="e.g. Behind the pour"></div>'
+    +'<div class="fg"><label>Platform</label><select id="ac-p"><option>tiktok</option><option>instagram</option><option>website</option></select></div></div>'
+    +'<div class="fg2"><div class="fg"><label>Date</label><input type="date" id="ac-d" value="'+iso()+'"></div>'
+    +'<div class="fg"><label>Product</label><select id="ac-pr"><option value="">None</option><option>9oz Vessel</option><option>9oz Candle</option><option>Tee</option><option>Hoodie</option><option>Keychain</option></select></div></div>'
+    +'<div class="brow"><button class="btn pri" onclick="svC()">Save</button><button class="btn" onclick="document.getElementById(\'ac-f\').innerHTML=\'\'">Cancel</button></div></div>';
+}
+function svC(){const t=document.getElementById('ac-t')?.value?.trim();if(!t)return;S.content.unshift({title:t,plat:document.getElementById('ac-p')?.value,date:document.getElementById('ac-d')?.value,prod:document.getElementById('ac-pr')?.value||''});save();document.getElementById('ac-f').innerHTML='';ctnTab('p');}
+function rmC(i){S.content.splice(i,1);save();ctnTab('p');}
+
+// SETTINGS
+function rSettings(){
+  const el=document.getElementById('s-settings');
+  const pending=(S.requests||[]);
+  const users=(S.users||[]);
+  const isAdmin=currentUser?.isAdmin;
+
+  let pendingHTML='';
+  if(isAdmin&&pending.length){
+    pendingHTML='<div class="slbl">Pending requests <span class="pending-badge">'+pending.length+'</span></div>'
+      +'<div class="card">'
+      +pending.map((r,i)=>'<div class="dr" style="flex-wrap:wrap;gap:8px;">'
+        +'<div><div style="font-size:13px;font-weight:600;color:var(--t);">'+r.name+'</div>'
+        +'<div style="font-size:11px;color:var(--t3);">'+ROLES[r.role]?.label+' &middot; Requested: '+r.requestedAt+'</div></div>'
+        +'<div style="display:flex;gap:8px;">'
+        +'<button class="btn sm pri" data-ri="'+i+'" data-action="approve">Approve</button>'
+        +'<button class="btn sm danger" data-ri="'+i+'" data-action="deny">Deny</button>'
+        +'</div></div>'
+      ).join('')
+      +'</div>';
+  }
+
+  let usersHTML='<div class="slbl">Active users</div><div class="card">'
+    +users.filter(u=>u.approved).map(u=>'<div class="dr" style="flex-wrap:wrap;gap:8px;">'
+      +'<div><div style="font-size:13px;font-weight:600;color:var(--t);">'+u.name+(u.isAdmin?' <span class="bdg bgold">admin</span>':'')+'</div>'
+      +'<div style="font-size:11px;color:var(--t3);">'+ROLES[u.role]?.label+'</div></div>'
+      +(isAdmin&&u.id!==currentUser?.id?'<button class="btn sm danger" data-uid="'+u.id+'" data-uname="'+u.name+'" data-action="remove">Remove</button>':'')
+      +'</div>'
+    ).join('')
+    +'</div>';
+
+  let adminHTML='';
+  if(isAdmin){
+    adminHTML='<div class="slbl">Admin actions</div><div class="card">'
+      +'<div class="dr"><span class="dk">Reset a user PIN</span><button class="btn sm" onclick="resetUserPin()">Reset PIN</button></div>'
+      +'<div class="dr"><span class="dk">Transfer admin rights</span><button class="btn sm danger" onclick="transferAdmin()">Transfer admin</button></div>'
+      +'</div>';
+  }
+
+  el.innerHTML='<div class="ptitle">Settings</div><div class="psub">API key &middot; Users &middot; Admin &middot; Data</div>'
+    +pendingHTML
+    +usersHTML
+    +adminHTML
+    +'<div class="card-gold" style="margin-top:16px;">'
+    +'<div style="font-family:var(--serif);font-size:18px;color:var(--gold);font-weight:700;margin-bottom:8px;">Anthropic API key</div>'
+    +'<div style="font-size:12px;color:var(--t3);margin-bottom:12px;line-height:1.7;">Required for AI scent creation and content generation. Get your key at <span style="color:var(--blue);">console.anthropic.com</span>.</div>'
+    +'<div class="fg" style="margin-bottom:10px;"><label>API key</label><input type="password" id="api-k" placeholder="sk-ant-..." style="font-family:var(--mono);font-size:13px;"></div>'
+    +'<div id="api-st" style="font-size:12px;min-height:18px;margin-bottom:10px;"></div>'
+    +'<div class="brow"><button class="btn pri" onclick="svKey()">Save key</button><button class="btn" onclick="tstKey()">Test</button>'+(S.apiKey?'<button class="btn danger" onclick="clrKey()">Remove</button>':'')+'</div>'
+    +'</div>'
+    +'<div class="card-gold" style="margin-top:10px;">'
+    +'<div style="font-family:var(--serif);font-size:18px;color:var(--gold);font-weight:700;margin-bottom:4px;">Cloud sync</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><div class="adot" id="sb-dot" style="width:10px;height:10px;"></div><span style="font-size:12px;color:var(--t3);" id="sb-status">Not connected</span></div>'
+    +'<div style="font-size:12px;color:var(--t3);margin-bottom:12px;line-height:1.7;">Syncs all your data to Supabase. Works across devices. Data survives app updates.</div>'
+    +'<div class="fg" style="margin-bottom:8px;"><label>Supabase URL</label><input type="text" id="sb-url" placeholder="https://xxx.supabase.co" style="font-size:13px;"></div>'
+    +'<div class="fg" style="margin-bottom:10px;"><label>Supabase anon key</label><input type="password" id="sb-key" placeholder="sb_publishable_..." style="font-family:var(--mono);font-size:11px;"></div>'
+    +'<div id="sb-st" style="font-size:12px;min-height:18px;margin-bottom:10px;"></div>'
+    +'<div class="brow">'
+    +'<button class="btn pri" onclick="svSB()">Save &amp; connect</button>'
+    +'<button class="btn" onclick="syncNow()">Sync now</button>'
+    +'<button class="btn" onclick="pullFromCloud()">Pull from cloud</button>'
+    +'</div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:10px;">Last sync: <span id="sb-last">'+(S.sbLastSync||'Never')+'</span></div>'
+    +'</div>'
+    +'<div class="card" style="margin-top:10px;"><div class="ctitle">Data</div>'
+    +'<div class="dr"><span class="dk">Batches</span><span class="dv">'+(S.batches.length+S.cBatches.length)+'</span></div>'
+    +'<div class="dr"><span class="dk">Orders</span><span class="dv">'+S.orders.length+'</span></div>'
+    +'<div class="dr"><span class="dk">Fragrances</span><span class="dv">'+(S.fragLib.length+S.customScents.length)+'</span></div>'
+    +'<div class="brow"><button class="btn" onclick="expD()">Export data</button><button class="btn danger" onclick="clrAll()">Clear all data</button></div>'
+    +'</div>';
+
+  // Set API key value
+  var apiEl=document.getElementById('api-k');if(apiEl)apiEl.value=S.apiKey||'';
+  var sbUrlEl=document.getElementById('sb-url');if(sbUrlEl)sbUrlEl.value=S.sbUrl||'';
+  var sbKeyEl=document.getElementById('sb-key');if(sbKeyEl)sbKeyEl.value=S.sbKey||'';
+  if(S.sbUrl&&S.sbKey){updSBDot(true);}
+
+  // Attach approval/deny handlers
+  document.querySelectorAll('[data-action="approve"]').forEach(btn=>{
+    btn.onclick=()=>approveRequest(parseInt(btn.getAttribute('data-ri')));
+  });
+  document.querySelectorAll('[data-action="deny"]').forEach(btn=>{
+    btn.onclick=()=>denyRequest(parseInt(btn.getAttribute('data-ri')));
+  });
+  document.querySelectorAll('[data-action="remove"]').forEach(btn=>{
+    btn.onclick=()=>removeUser(btn.getAttribute('data-uid'),btn.getAttribute('data-uname'));
+  });
+
+  // Show pending dot on nav
+  const nb=document.getElementById('nb-settings');
+  if(nb&&pending.length>0)nb.innerHTML=nb.innerHTML.replace(NL.settings,NL.settings+'<span class="pending-badge">'+pending.length+'</span>');
+}
+
+function approveRequest(i){
+  const req=S.requests[i];if(!req)return;
+  if(!confirm('Approve access for '+req.name+'?'))return;
+  if(!S.users)S.users=[];
+  S.users.push({id:'u'+Date.now(),name:req.name,nameLower:req.nameLower||req.name.toLowerCase(),role:req.role,pinHash:req.pinHash,isAdmin:false,approved:true,createdAt:iso()});
+  S.requests.splice(i,1);
+  save();toast(req.name+' approved!');rSettings();
+}
+
+function denyRequest(i){
+  const req=S.requests[i];if(!req)return;
+  if(!confirm('Deny request from '+req.name+'?'))return;
+  S.requests.splice(i,1);
+  save();toast('Request denied');rSettings();
+}
+
+function removeUser(uid,name){
+  if(!confirm('Remove '+name+'? They will lose access immediately.'))return;
+  S.users=S.users.filter(u=>u.id!==uid);
+  save();toast(name+' removed');rSettings();
+}
+
+function resetUserPin(){
+  const name=prompt('Enter the username to reset PIN for:');
+  if(!name)return;
+  const user=S.users.find(u=>u.nameLower===name.trim().toLowerCase());
+  if(!user){toast('User not found');return;}
+  const newPin=prompt('Enter new PIN for '+user.name+' (4 digits):');
+  if(!newPin||newPin.length!==4||isNaN(newPin)){toast('Invalid PIN');return;}
+  user.pinHash=hp(newPin);
+  save();toast(user.name+' PIN reset');rSettings();
+}
+
+function transferAdmin(){
+  const approved=S.users.filter(u=>u.approved&&u.id!==currentUser?.id);
+  if(!approved.length){toast('No other users to transfer to');return;}
+  const names=approved.map((u,i)=>(i+1)+'. '+u.name+' ('+ROLES[u.role]?.label+')').join('\n');
+  const choice=prompt('Transfer admin to which user?\n\n'+names+'\n\nEnter their name:');
+  if(!choice)return;
+  const newAdmin=approved.find(u=>u.nameLower===choice.trim().toLowerCase());
+  if(!newAdmin){toast('User not found');return;}
+  const confirmPin=prompt('Confirm with your admin PIN:');
+  if(!confirmPin)return;
+  const me=S.users.find(u=>u.id===currentUser?.id);
+  if(!me||hp(confirmPin)!==me.pinHash){toast('Wrong PIN');return;}
+  if(!confirm('Transfer admin rights to '+newAdmin.name+'? You will become a regular user.'))return;
+  // Transfer
+  S.users.forEach(u=>{u.isAdmin=false;});
+  newAdmin.isAdmin=true;
+  newAdmin.role='will';
+  if(me)me.isAdmin=false;
+  currentUser.isAdmin=false;
+  save();
+  toast('Admin transferred to '+newAdmin.name);
+  rSettings();
+}
+
+function svKey(){const k=document.getElementById('api-k')?.value?.trim();S.apiKey=k;save();dots();document.getElementById('api-st').innerHTML=k?'<span style="color:var(--green);">Saved</span>':'<span style="color:var(--t3);">Removed</span>';}
+async function tstKey(){var st=document.getElementById('api-st');if(!S.apiKey){st.innerHTML='<span style="color:var(--red);">No key set</span>';return;}if(!online){st.innerHTML='<span style="color:var(--yellow);">Offline</span>';return;}st.innerHTML='<span class="spin"></span>';try{await callClaude('Reply with only the words: Kuli Legacy connected');st.innerHTML='<span style="color:var(--green);">&#10003; AI connected and ready</span>';}catch(e){st.innerHTML='<span style="color:var(--red);">'+e.message+'</span>';}}
+function clrKey(){if(confirm('Remove API key?')){S.apiKey='';save();dots();rSettings();}}
+function rstPIN(r){if(role!=='will'&&r!==role){toast('Only Will (admin) can reset other PINs');return;}if(confirm('Reset PIN for '+ROLES[r].label+'?')){S.pins[r]='';S.pinsSet[r]=false;save();toast(ROLES[r].label+' PIN reset');rSettings();}}
+function expD(){const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({...S,pins:{},apiKey:'[redacted]'},null,2));a.download='kuli_data_'+iso()+'.json';a.click();}
+function clrAll(){if(confirm('Clear ALL data? This cannot be undone.')){localStorage.removeItem(LS);location.reload();}}
+
+// QR
+function mkQR(id,data){const el=document.getElementById(id);if(!el||typeof QRCode==='undefined')return;el.innerHTML='';const c=document.createElement('canvas');el.appendChild(c);try{QRCode.toCanvas(c,data,{width:90,margin:1,color:{dark:'#000',light:'#fff'}},()=>{});}catch(e){}}
+
+// ── SUPABASE SYNC ──
+var SB_DEVICE_ID = 'kuli-main';
+
+function sbHeaders(){
+  return {
+    'Content-Type':'application/json',
+    'apikey': S.sbKey,
+    'Authorization': 'Bearer '+S.sbKey,
+    'Prefer': 'return=representation'
+  };
+}
+
+async function syncToCloud(){
+  if(!S.sbUrl||!S.sbKey) return;
+  try{
+    var payload = JSON.stringify({
+      id: SB_DEVICE_ID,
+      data: S,
+      updated_at: new Date().toISOString()
+    });
+    var r = await fetch(S.sbUrl+'/rest/v1/kuli_app_data?id=eq.'+SB_DEVICE_ID, {
+      method:'DELETE',
+      headers: sbHeaders()
+    });
+    var r2 = await fetch(S.sbUrl+'/rest/v1/kuli_app_data', {
+      method:'POST',
+      headers: sbHeaders(),
+      body: payload
+    });
+    if(r2.ok){
+      S.sbLastSync = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      // Save locally too but dont trigger another cloud sync
+      try{localStorage.setItem('kl_v3',JSON.stringify(S));}catch(e){}
+      updSBDot(true);
+      var el=document.getElementById('sb-last');if(el)el.textContent=S.sbLastSync;
+    }
+  }catch(e){
+    console.warn('Sync error:',e);
+    updSBDot(false);
+  }
+}
+
+async function pullFromCloud(){
+  if(!S.sbUrl||!S.sbKey){
+    var stEl=document.getElementById('sb-st');
+    if(stEl)stEl.innerHTML='<span style="color:var(--red);">Save Supabase credentials first</span>';
+    return;
+  }
+  var stEl=document.getElementById('sb-st');
+  if(stEl)stEl.innerHTML='<span class="spin"></span> Pulling data...';
+  try{
+    var r = await fetch(S.sbUrl+'/rest/v1/kuli_app_data?id=eq.'+SB_DEVICE_ID+'&select=data,updated_at', {
+      headers: sbHeaders()
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var rows = await r.json();
+    if(rows&&rows.length>0&&rows[0].data){
+      var cloudData = rows[0].data;
+      // Preserve local credentials
+      cloudData.sbUrl = S.sbUrl;
+      cloudData.sbKey = S.sbKey;
+      cloudData.apiKey = cloudData.apiKey || S.apiKey;
+      // Restore to S
+      var safeKeys=['bSeq','cSeq','oSeq','unit','apiKey','bags','prices',
+        'batches','cBatches','orders','shows','activeShow','fragLib',
+        'customScents','content','pwaShown','users','requests','sbLastSync'];
+      safeKeys.forEach(function(k){if(cloudData.hasOwnProperty(k))S[k]=cloudData[k];});
+      // Ensure arrays
+      ['users','requests','batches','cBatches','orders','shows','fragLib','customScents','content'].forEach(function(k){if(!Array.isArray(S[k]))S[k]=[];});
+      try{localStorage.setItem('kl_v3',JSON.stringify(S));}catch(e){}
+      if(stEl)stEl.innerHTML='<span style="color:var(--green);">Data pulled successfully! Last cloud save: '+rows[0].updated_at.slice(0,16).replace('T',' ')+'</span>';
+      updSBDot(true);
+      // Refresh current screen
+      setTimeout(function(){
+        authInit();
+        if(document.getElementById('app').style.display==='flex') go('dash');
+      },1500);
+    } else {
+      if(stEl)stEl.innerHTML='<span style="color:var(--yellow);">No cloud data found yet. Save data first.</span>';
+    }
+  }catch(e){
+    if(stEl)stEl.innerHTML='<span style="color:var(--red);">Error: '+e.message+'</span>';
+    updSBDot(false);
+  }
+}
+
+function updSBDot(ok){
+  var dot=document.getElementById('sb-dot');
+  var st=document.getElementById('sb-status');
+  if(dot){dot.style.background=ok?'var(--green)':'var(--red)';}
+  if(st){st.textContent=ok?'Connected':'Connection error';}
+}
+
+function svSB(){
+  var urlEl=document.getElementById('sb-url');
+  var keyEl=document.getElementById('sb-key');
+  var stEl=document.getElementById('sb-st');
+  var url=urlEl?urlEl.value.trim():'';
+  var key=keyEl?keyEl.value.trim():'';
+  if(!url||!key){if(stEl)stEl.innerHTML='<span style="color:var(--red);">Enter both URL and key</span>';return;}
+  S.sbUrl=url;S.sbKey=key;
+  save();
+  if(stEl)stEl.innerHTML='<span class="spin"></span> Testing connection...';
+  fetch(url+'/rest/v1/kuli_app_data?limit=1',{headers:{'apikey':key,'Authorization':'Bearer '+key}})
+    .then(function(r){
+      if(r.ok||r.status===406){
+        if(stEl)stEl.innerHTML='<span style="color:var(--green);">Connected! Syncing now...</span>';
+        updSBDot(true);
+        syncToCloud();
+      } else {
+        throw new Error('HTTP '+r.status);
+      }
+    })
+    .catch(function(e){
+      if(stEl)stEl.innerHTML='<span style="color:var(--red);">Error: '+e.message+'. Check URL and key.</span>';
+      updSBDot(false);
+    });
+}
+
+function syncNow(){
+  var stEl=document.getElementById('sb-st');
+  if(!S.sbUrl||!S.sbKey){if(stEl)stEl.innerHTML='<span style="color:var(--red);">No credentials saved</span>';return;}
+  if(stEl)stEl.innerHTML='<span class="spin"></span> Syncing...';
+  syncToCloud().then(function(){
+    if(stEl)stEl.innerHTML='<span style="color:var(--green);">Synced!</span>';
+  });
+}
+
+// Auto-sync after every save
+var _origSave = null;
+function initAutoSync(){
+  _origSave = save;
+  save = function(){
+    _origSave();
+    if(S.sbUrl&&S.sbKey) syncToCloud();
+  };
+}
+
+// On startup, try to pull latest from cloud if credentials exist
+async function cloudBootSync(){
+  if(!S.sbUrl||!S.sbKey) return;
+  try{
+    var r = await fetch(S.sbUrl+'/rest/v1/kuli_app_data?id=eq.'+SB_DEVICE_ID+'&select=data,updated_at', {
+      headers: sbHeaders()
+    });
+    if(!r.ok) return;
+    var rows = await r.json();
+    if(rows&&rows.length>0&&rows[0].data){
+      var cloudData=rows[0].data;
+      cloudData.sbUrl=S.sbUrl;cloudData.sbKey=S.sbKey;cloudData.apiKey=cloudData.apiKey||S.apiKey;
+      var safeKeys=['bSeq','cSeq','oSeq','unit','apiKey','bags','prices','batches','cBatches',
+        'orders','shows','activeShow','fragLib','customScents','content','pwaShown','users','requests','sbLastSync'];
+      safeKeys.forEach(function(k){if(cloudData.hasOwnProperty(k))S[k]=cloudData[k];});
+      ['users','requests','batches','cBatches','orders','shows','fragLib','customScents','content'].forEach(function(k){if(!Array.isArray(S[k]))S[k]=[];});
+      try{localStorage.setItem('kl_v3',JSON.stringify(S));}catch(e){}
+      updSBDot(true);
+    }
+  }catch(e){console.warn('Boot sync error:',e);}
+}
+
+// BOOT
+function bootApp(){
+  load();
+  initAutoSync();
+  // If cloud credentials exist, sync from cloud then init auth
+  if(S.sbUrl&&S.sbKey){
+    cloudBootSync().then(function(){authInit();}).catch(function(){authInit();});
+  } else {
+    authInit();
+  }
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',bootApp);
+} else {
+  bootApp();
+}
+</script>
+</body>
+</html>
