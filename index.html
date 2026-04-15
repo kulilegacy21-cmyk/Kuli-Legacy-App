@@ -547,11 +547,41 @@ function autoCat(t,m,b) {
 
 function authInit(){
   document.querySelectorAll('.login-panel').forEach(function(p){p.classList.remove('show');});
-  if(S.users.length===0){
-    showPanel('lp-admin-setup');
-  } else {
+
+  // If users exist (loaded from local or pulled from cloud) -- show signin
+  if(S.users.length>0){
     showPanel('lp-signin');
+    return;
   }
+
+  // No users -- but if Supabase is connected, cloud sync already ran
+  // If still no users after cloud sync, it means nobody has set up yet
+  // Only show admin setup if NO Supabase connected (truly first device)
+  // OR if Supabase is connected but cloud returned zero users (genuinely first launch)
+  if(!S.sbUrl||!S.sbKey){
+    // No cloud -- could be first device OR Denise without cloud set up
+    // Show admin setup since we have no way to know
+    showPanel('lp-admin-setup');
+    return;
+  }
+
+  // Has Supabase credentials but no users found in cloud
+  // This means either:
+  // A) Genuinely first launch (Will hasn't set up yet)
+  // B) Cloud check failed silently
+  // Show admin setup but also offer sign-in option
+  showPanel('lp-admin-setup');
+  // Add a "not the first user?" link
+  setTimeout(function(){
+    var setupPanel=document.getElementById('lp-admin-setup');
+    if(setupPanel&&!setupPanel.querySelector('.not-admin-link')){
+      var link=document.createElement('button');
+      link.className='btn-ghost not-admin-link';
+      link.textContent='Not the first user? Request access instead';
+      link.onclick=function(){showPanel('lp-register');};
+      setupPanel.appendChild(link);
+    }
+  },100);
 }
 
 function showPanel(id){
@@ -2651,7 +2681,7 @@ function initAutoSync(){
   };
 }
 
-// On startup, try to pull latest from cloud if credentials exist
+// On startup, pull latest from cloud -- critical for multi-device support
 async function cloudBootSync(){
   if(!S.sbUrl||!S.sbKey) return;
   try{
@@ -2662,27 +2692,44 @@ async function cloudBootSync(){
     var rows = await r.json();
     if(rows&&rows.length>0&&rows[0].data){
       var cloudData=rows[0].data;
-      cloudData.sbUrl=S.sbUrl;cloudData.sbKey=S.sbKey;cloudData.apiKey=cloudData.apiKey||S.apiKey;
+      // Always preserve local device credentials
+      cloudData.sbUrl=S.sbUrl;
+      cloudData.sbKey=S.sbKey;
+      cloudData.apiKey=cloudData.apiKey||S.apiKey;
       var safeKeys=['bSeq','cSeq','oSeq','unit','apiKey','bags','prices','batches','cBatches',
         'orders','shows','activeShow','fragLib','customScents','content','pwaShown','users','requests','sbLastSync'];
       safeKeys.forEach(function(k){if(cloudData.hasOwnProperty(k))S[k]=cloudData[k];});
-      ['users','requests','batches','cBatches','orders','shows','fragLib','customScents','content'].forEach(function(k){if(!Array.isArray(S[k]))S[k]=[];});
+      // Always guarantee arrays
+      ['users','requests','batches','cBatches','orders','shows','fragLib','customScents','content'].forEach(function(k){
+        if(!Array.isArray(S[k]))S[k]=[];
+      });
       try{localStorage.setItem('kl_v3',JSON.stringify(S));}catch(e){}
       updSBDot(true);
+      console.log('Cloud sync: loaded '+S.users.length+' users, '+S.requests.length+' requests');
     }
-  }catch(e){console.warn('Boot sync error:',e);}
+  }catch(e){
+    console.warn('Boot sync error:',e);
+  }
 }
 
 // BOOT
-function bootApp(){
+async function bootApp(){
   load();
   initAutoSync();
-  // If cloud credentials exist, sync from cloud then init auth
+
+  // If we have Supabase credentials, check cloud for existing users
+  // This fixes the multi-device problem -- Denise's fresh device checks cloud
+  // and knows admin already exists, so shows sign-in not admin setup
   if(S.sbUrl&&S.sbKey){
-    cloudBootSync().then(function(){authInit();}).catch(function(){authInit();});
+    try{
+      await cloudBootSync();
+    }catch(e){console.warn('Boot sync error:',e);}
   } else {
-    authInit();
+    // No Supabase yet -- check if this looks like a fresh device
+    // by seeing if admin setup has ever been completed via a flag
+    // If no sbUrl set, we rely on localStorage only
   }
+  authInit();
 }
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',bootApp);
