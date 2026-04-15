@@ -52,6 +52,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 .skum{font-family:var(--mono);font-size:9px;color:var(--t3);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 #pwab{display:none;background:var(--gold);color:var(--bg);padding:10px 16px;font-size:12px;font-weight:500;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;}
 #pwab.show{display:flex;}
+#offline-bar{display:none;background:rgba(248,113,113,.15);border-bottom:1px solid rgba(248,113,113,.3);color:var(--red);padding:8px 16px;font-size:11px;font-weight:600;text-align:center;flex-shrink:0;letter-spacing:.04em;}
+#offline-bar.show{display:block;}
 .pwax{background:rgba(0,0,0,.15);border:none;color:var(--bg);font-size:14px;font-weight:700;padding:3px 10px;border-radius:6px;cursor:pointer;}
 #screens{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:90px;}
 .scr{display:none;padding:16px;}.scr.on{display:block;}
@@ -166,6 +168,13 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
 .htags{font-size:12px;color:var(--blue);margin-top:8px;line-height:1.8;}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
+#scanner-overlay{display:none;position:fixed;inset:0;background:#000;z-index:300;flex-direction:column;align-items:center;justify-content:center;}
+#scanner-overlay.show{display:flex;}
+#scanner-video{width:100%;max-width:500px;border-radius:var(--r);}
+.scanner-frame{position:absolute;width:240px;height:240px;border:3px solid var(--gold);border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.6);}
+.scanner-line{position:absolute;width:200px;height:2px;background:var(--gold);top:20px;left:20px;animation:scan 2s ease-in-out infinite;box-shadow:0 0 8px var(--gold);}
+@keyframes scan{0%,100%{top:20px;}50%{top:200px;}}
+#scanner-result{font-size:14px;color:var(--green);font-weight:600;margin-top:16px;min-height:20px;text-align:center;}
 .tsi{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;cursor:pointer;}
 .tsq{font-size:13px;font-weight:600;color:var(--t);display:flex;justify-content:space-between;align-items:center;gap:8px;}
 .tsa{font-size:12px;color:var(--t2);line-height:1.7;margin-top:10px;display:none;padding-top:10px;border-top:1px solid var(--b);}
@@ -181,7 +190,75 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
 .ht{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .hsku{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t);}
 .hmeta{font-size:11px;color:var(--t3);flex:1;}
-@media print{#hdr,#bnav,#pwab,#login,.no-print{display:none!important;}body{background:#fff;color:#000;}#screens{overflow:visible;padding-bottom:0;}.scr{display:none!important;}#s-batch.on{display:block!important;}}
+.pipe-stage{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--b);}
+.pipe-stage:last-child{border-bottom:none;}
+.pipe-dot{width:32px;height:32px;min-width:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid var(--b2);}
+.pipe-dot.done{background:var(--green);border-color:var(--green);color:#000;}
+.pipe-dot.active{background:var(--gold);border-color:var(--gold);color:#000;}
+.pipe-dot.pending{background:var(--bg3);color:var(--t3);}
+.pipe-info{flex:1;}
+.pipe-name{font-size:13px;font-weight:700;color:var(--t);}
+.pipe-meta{font-size:11px;color:var(--t3);margin-top:2px;}
+.pipe-action{font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--b2);background:var(--bg3);color:var(--t);cursor:pointer;font-family:var(--sans);white-space:nowrap;}
+.pipe-action.pri{background:var(--gold);color:#000;border-color:var(--gold);}
+.lbl-prev{background:#fff;border-radius:8px;padding:16px;margin:12px 0;font-family:Arial,sans-serif;}
+.lbl-warn{font-size:9px;color:#333;line-height:1.4;}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  #hdr,#bnav,#pwab,#login,.no-print,#offline-bar,#scanner-overlay,#ldov{display:none!important;}
+  body{background:#fff!important;color:#000!important;font-family:Arial,sans-serif;font-size:11pt;margin:0;padding:0;height:auto!important;}
+  html,body{height:auto!important;overflow:visible!important;min-height:0!important;}
+  #app{display:block!important;height:auto!important;max-height:none!important;overflow:visible!important;min-height:0!important;}
+  #screens{overflow:visible!important;padding:0!important;height:auto!important;max-height:none!important;min-height:0!important;-webkit-overflow-scrolling:auto!important;}
+  .scr{display:none!important;}
+  #s-batch{display:none!important;}
+  #s-batch.on{display:block!important;padding:16px 20px!important;height:auto!important;max-height:none!important;overflow:visible!important;}
+  /* Cards */
+  .card,.cgold{background:#fff!important;border:1px solid #ccc!important;border-radius:4px!important;padding:10px 12px!important;margin-bottom:10px!important;}
+  /* Metrics row */
+  .metrics,.mcard{background:#fff!important;border:1px solid #ccc!important;}
+  /* Hide screen-only elements */
+  .al,.ff,textarea{display:none!important;}
+  /* Section labels */
+  .slbl{color:#333!important;font-size:9pt!important;font-weight:700!important;letter-spacing:.08em!important;margin:14px 0 6px!important;}
+  /* Steps */
+  .step{page-break-inside:avoid;border-bottom:1px solid #eee;}
+  .snum{background:#f5f5f5!important;color:#333!important;border:1px solid #ccc!important;}
+  .stxt{color:#333!important;}
+  /* QC checkboxes */
+  .qci{color:#333!important;page-break-inside:avoid;}
+  /* QR code */
+  #bs-qr{background:#fff!important;border:2px solid #c4a96e!important;padding:6px!important;display:inline-block!important;}
+  #bs-qr canvas{display:block!important;}
+  /* Table */
+  table{border-collapse:collapse!important;width:100%!important;}
+  td,th{color:#000!important;border-bottom:1px solid #ddd!important;padding:8px 6px!important;}
+  /* Gold color for totals */
+  .cgold tr.sum td,.cgold tr:last-child td{color:#a07840!important;font-weight:700!important;}
+  /* Page break control */
+  .card{page-break-inside:avoid;}
+  /* Allow multi-page printing */
+  @page{margin:0.75in;}
+  #s-batch.on *{visibility:visible!important;}
+  /* Ensure content is black on white */
+  div,span,p,td,th{color:#000!important;}
+  [style*="color:var(--gold)"],[style*="color:var(--t3)"],[style*="color:var(--t2)"]{color:#555!important;}
+  [style*="color:var(--green)"]{color:#166534!important;}
+  [style*="color:var(--red)"]{color:#991b1b!important;}
+  /* Header serif font */
+  [style*="font-family:var(--serif)"]{font-family:Georgia,serif!important;}
+  [style*="font-family:var(--mono)"]{font-family:'Courier New',monospace!important;}
+}
+/* BARCODE & CAMERA */
+#scan-overlay{position:fixed;inset:0;background:#000;z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;}
+#scan-overlay.show{display:flex;}
+#scan-video{width:100%;max-width:500px;border-radius:var(--r);border:2px solid var(--gold);}
+#scan-aim{position:absolute;width:200px;height:200px;border:2px solid var(--gold);border-radius:8px;box-shadow:0 0 0 1000px rgba(0,0,0,.5);}
+.scan-msg{color:var(--t);font-size:14px;margin-top:16px;text-align:center;}
+#cam-overlay{position:fixed;inset:0;background:#000;z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;}
+#cam-overlay.show{display:flex;}
+#cam-video{width:100%;max-width:500px;border-radius:var(--r);}
+.cam-controls{display:flex;gap:12px;margin-top:16px;}
 </style>
 </head>
 <body>
@@ -280,6 +357,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
     <div><div>Install Kuli Legacy on your iPad</div><div style="font-size:11px;opacity:.7;margin-top:2px;">Tap Share &#11014; then Add to Home Screen</div></div>
     <button class="pwax" onclick="dimPWA()">&#10005;</button>
   </div>
+  <div id="offline-bar">&#128246; Offline &mdash; AI features unavailable. All production and show features work normally.</div>
   <div id="screens">
     <div id="s-dash" class="scr on"></div>
     <div id="s-batch" class="scr"></div>
@@ -290,6 +368,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
     <div id="s-reports" class="scr"></div>
     <div id="s-content" class="scr"></div>
     <div id="s-settings" class="scr"></div>
+    <div id="s-pipeline" class="scr"></div>
   </div>
   <nav id="bnav"></nav>
 </div>
@@ -302,7 +381,43 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
   <div id="ld-body"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" async></script>
+<div id="scanner-overlay">
+  <div style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;max-width:500px;min-height:300px;">
+    <video id="scanner-video" autoplay playsinline muted></video>
+    <div class="scanner-frame"><div class="scanner-line"></div></div>
+  </div>
+  <div id="scanner-result"></div>
+  <div style="margin-top:20px;display:flex;gap:12px;">
+    <button class="btn pri" onclick="stopScanner()">Done</button>
+    <button class="btn danger" onclick="cancelScanner()">Cancel</button>
+  </div>
+  <div style="font-size:12px;color:var(--t3);margin-top:12px;text-align:center;padding:0 20px;">Point camera at barcode or QR code on any Kuli Legacy product or material bag</div>
+</div>
+
+<!-- BARCODE SCAN OVERLAY -->
+<div id="scan-overlay">
+  <div style="position:relative;width:100%;max-width:500px;">
+    <video id="scan-video" autoplay playsinline muted></video>
+    <div id="scan-aim"></div>
+  </div>
+  <div class="scan-msg" id="scan-msg">Point camera at barcode or QR code</div>
+  <div style="display:flex;gap:12px;margin-top:16px;">
+    <button class="btn pri" onclick="closeScan()">Cancel</button>
+  </div>
+</div>
+
+<!-- CAMERA OVERLAY -->
+<div id="cam-overlay">
+  <video id="cam-video" autoplay playsinline muted></video>
+  <div class="cam-controls">
+    <button class="btn pri" id="cam-capture-btn">&#128247; Take photo</button>
+    <button class="btn" onclick="closeCam()">Cancel</button>
+  </div>
+  <canvas id="cam-canvas" style="display:none;"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js" async></script>
 <script>
 'use strict';
 const LS='kl_v3';
@@ -311,7 +426,7 @@ window.addEventListener('online',()=>{online=true;dots();});
 window.addEventListener('offline',()=>{online=false;dots();});
 
 const ROLES={
-  will:{label:'Will',color:'#e8d5a3',nav:['dash','batch','candle','content','orders','inventory','show','reports','settings']},
+  will:{label:'Will',color:'#e8d5a3',nav:['dash','batch','candle','content','orders','inventory','pipeline','show','reports','settings']},
   denise:{label:'Denise',color:'#f9a8d4',nav:['dash','candle','inventory','orders','reports','settings']},
   jaiden:{label:'Jaiden',color:'#93c5fd',nav:['dash','content','orders','reports','settings']},
   employee:{label:'Employee',color:'#86efac',nav:['dash','orders']}
@@ -325,9 +440,10 @@ const NI={
   show:'<circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M9 6v3l2.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
   reports:'<path d="M3 15l4.5-5 3 3.5 4-6 3.5 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
   content:'<rect x="3" y="3" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M6 7.5h6M6 10.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
-  settings:'<circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M9 3v1M9 14v1M3 9h1M14 9h1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+  settings:'<circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M9 3v1M9 14v1M3 9h1M14 9h1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>',
+  pipeline:'<path d="M3 5h12M3 9h10M3 13h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="14" cy="13" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/>'
 };
-const NL={dash:'Home',batch:'Concrete',candle:'Candle',orders:'Orders',inventory:'Stock',show:'Show',reports:'Reports',content:'Content',settings:'Settings'};
+const NL={dash:'Home',batch:'Concrete',candle:'Candle',orders:'Orders',inventory:'Stock',show:'Show',reports:'Reports',content:'Content',settings:'Settings',pipeline:'Pipeline'};
 
 // SCENT DATABASE
 const SDB={
@@ -440,6 +556,18 @@ let S={
   customScents:[],content:[],pwaShown:false,
   monthlyGoal:1000,
   fgStock:{p1:0,p2:0,p3:0,p4:0,p5:0,p6:0,p7:0,p8:0,p9:0,p10:0,p11:0,p12:0},
+  fgPhotos:{},
+  pipeline:[],
+  packMaterials:{
+    box9:{name:'9oz Gift Box',cost:0.85,stock:20},
+    box5:{name:'5oz Gift Box',cost:0.65,stock:20},
+    tissue:{name:'Black Tissue Paper',cost:0.12,stock:100},
+    sticker:{name:'Round Logo Sticker',cost:0.08,stock:200},
+    crinkle:{name:'Black Crinkle Filler',cost:0.15,stock:50},
+    thankyou:{name:'Thank You Card',cost:0.10,stock:100},
+    mailer:{name:'Mailer Box',cost:1.20,stock:30},
+    bubble:{name:'Bubble Wrap',cost:0.20,stock:100},
+  },
 };
 
 function load(){
@@ -508,6 +636,8 @@ function dots(){
   if(a){a.className='adot'+(S.apiKey?(online?' ok':' err'):'');a.title=S.apiKey?(online?'AI connected':'AI offline'):'No API key';}
   const al=document.getElementById('aldot');
   if(al)al.classList.toggle('on',lowM().length>0||(currentUser?.isAdmin&&(S.requests||[]).length>0));
+  var ob=document.getElementById('offline-bar');
+  if(ob)ob.classList.toggle('show',!online);
 }
 function initPWA(){const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);if(isIOS&&!window.navigator.standalone&&!S.pwaShown){document.getElementById('pwab').classList.add('show');}}
 function dimPWA(){document.getElementById('pwab').classList.remove('show');S.pwaShown=true;save();}
@@ -641,7 +771,13 @@ function doLogin(){
     for(var j=0;j<S.requests.length;j++){
       if(S.requests[j].nameLower===nameIn){pending=true;break;}
     }
-    if(errEl)errEl.textContent=pending?'Your request is pending admin approval':'Username not found';
+    var denied=false;
+    if(!pending&&S.deniedUsers){
+      for(var k=0;k<S.deniedUsers.length;k++){
+        if(S.deniedUsers[k].nameLower===nameIn){denied=true;break;}
+      }
+    }
+    if(errEl)errEl.textContent=pending?'Your request is pending admin approval':denied?'Your access request was not approved. Contact Will for more info.':'Username not found. Tap Request access to apply.';
     return;
   }
   if(hp(pin)!==user.pinHash){
@@ -695,6 +831,13 @@ function enterApp(r,name,isAdmin,uid){
   var clearFields=['li-user','li-pin','as-name','as-pin','as-pin2','rq-name','rq-pin','rq-pin2'];
   clearFields.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   buildNav();go('dash');dots();initPWA();
+  // Auto-prompt Supabase setup on new device if not configured
+  setTimeout(function(){
+    if(!S.sbUrl||!S.sbKey){
+      var setup=confirm('Welcome to Kuli Legacy!\n\nConnect to cloud sync so your data stays safe and works across all devices.\n\nTap OK to set up now (takes 30 seconds) or Cancel to do it later in Settings.');
+      if(setup){go('settings');}
+    }
+  },1000);
 }
 
 function logout(){
@@ -737,7 +880,7 @@ function go(name){
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.ni').forEach(b=>b.classList.remove('on'));
   const s=document.getElementById('s-'+name);
-  if(s){s.classList.add('on');({dash:rDash,batch:rBatch,candle:rCandle,orders:rOrders,inventory:rInv,show:rShow,reports:rReports,content:rContent,settings:rSettings}[name]||function(){})();}
+  if(s){s.classList.add('on');({dash:rDash,batch:rBatch,candle:rCandle,orders:rOrders,inventory:rInv,show:rShow,reports:rReports,content:rContent,settings:rSettings,pipeline:rPipeline}[name]||function(){})();}
   const nb=document.getElementById('nb-'+name);if(nb)nb.classList.add('on');
   document.getElementById('screens').scrollTop=0;
 }
@@ -869,32 +1012,44 @@ function autoLotNumber(){
 
 function rBatch(){
   var el=document.getElementById('s-batch');
-  var sz=parseInt(document.getElementById('bs-sz')?.value||9);
+  var szRaw=document.getElementById('bs-sz')?.value||'9';
+  var sz=parseInt(szRaw);
+  var isCustom=(szRaw==='custom'||szRaw==='lid'||szRaw==='glass'||isNaN(sz));
+  var recSz=isCustom?9:sz; // fallback to 9oz recipe for custom
   var qty=parseInt(document.getElementById('bs-qty')?.value||10);
-  var sku='KSB-'+sz+'OZ-'+String(new Date().getFullYear()).slice(-2)+pad(new Date().getMonth()+1,2)+pad(new Date().getDate(),2)+'-'+pad(S.bSeq);
+  if(isNaN(qty)||qty<1)qty=10;
+
+  var sku='KSB-'+(isCustom?szRaw.toUpperCase():sz+'OZ')+'-'+String(new Date().getFullYear()).slice(-2)+pad(new Date().getMonth()+1,2)+pad(new Date().getDate(),2)+'-'+pad(S.bSeq);
   document.getElementById('skum').textContent=sku;
-  var r=REC[sz]||REC[9];
+
+  var r=REC[recSz]||REC[9];
   var totalPort=r.port*qty;
   var totalSil=r.sil*qty;
   var totalWater=r.water*qty;
   var totalPig=r.pig*qty;
   var spGrams=r.port*qty*0.0075;
+  var totalDry=totalPort+totalSil+totalPig;
+  var totalAll=totalDry+totalWater;
+
   var c={port:totalPort*cpg('port'),sil:totalSil*cpg('sil'),pig:totalPig*cpg('pig'),sp:spGrams*cpg('sp')};
   var tc=c.port+c.sil+c.pig+c.sp;
-  var cp=tc/qty;
-  var ret=sz===9?S.prices.p9:S.prices.p5;
-  var mg=mgn(ret,cp);
-  var lm=lowM().filter(function(e){return['port','sil','pig','sp'].includes(e[0]);});
+  var cp=qty>0?tc/qty:0;
+
   var water80=Math.round(totalWater*0.8);
   var water20=Math.round(totalWater*0.2);
-  var customField=document.getElementById('bs-custom')?.value||'';
+  var lotVal=document.getElementById('bs-lot')?.value||autoLotNumber();
+  var opVal=document.getElementById('bs-op')?.value||(currentUser?currentUser.name:'');
+  var custDim=document.getElementById('bs-custom')?.value||'';
+
+  var lm=lowM().filter(function(e){return['port','sil','pig','sp'].includes(e[0]);});
 
   el.innerHTML=
+    // ── ALERTS (screen only) ──
     lm.map(function(e){return '<div class="al ae no-print"><span>&#9940;</span><span>'+e[1].name+': '+(+e[1].stock===0?'Out of stock':'Low -- '+e[1].stock+' bags')+'</span></div>';}).join('')
-    +'<div class="al aw no-print"><span>&#9888;</span><span>PPE required &mdash; P100 respirator &middot; nitrile gloves &middot; safety glasses before handling dry powders</span></div>'
+    +'<div class="al aw no-print"><span>&#9888;</span><span>PPE required before handling dry materials: P100 respirator &middot; nitrile gloves &middot; safety glasses</span></div>'
 
-    // ── HEADER ──
-    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:2px solid var(--gold);margin-bottom:18px;flex-wrap:wrap;gap:10px;">'
+    // ── HEADER (prints) ──
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:2px solid #c4a96e;margin-bottom:16px;flex-wrap:wrap;gap:10px;">'
     +'<div>'
     +'<div style="font-family:var(--serif);font-size:32px;font-weight:700;color:var(--t);letter-spacing:-.01em;">KuliStone Blend</div>'
     +'<div style="font-size:13px;color:var(--t3);margin-top:4px;">White Portland Type I &middot; Production Batch Sheet</div>'
@@ -902,122 +1057,147 @@ function rBatch(){
     +'<div style="text-align:right;">'
     +'<div style="font-family:var(--mono);color:var(--gold);font-weight:700;font-size:16px;">'+sku+'</div>'
     +'<div style="font-size:15px;font-weight:600;color:var(--t);margin-top:4px;">'+today()+'</div>'
-    +'<div style="font-size:12px;color:var(--t3);margin-top:2px;">Lot: <span style="color:var(--gold);font-weight:600;" id="lot-display">'+(document.getElementById('bs-lot')?.value||autoLotNumber())+'</span></div>'
+    +'<div style="font-size:12px;color:var(--t3);margin-top:2px;">Lot: <span style="color:var(--gold);font-weight:600;" id="lot-display">'+lotVal+'</span></div>'
     +'</div></div>'
 
-    // ── FORM ROW 1 ──
+    // ── FORM (screen only) ──
+    +'<div class="no-print">'
     +'<div class="fg2">'
     +'<div class="fg"><label>Vessel size</label>'
     +'<select id="bs-sz" onchange="rBatch()">'
-    +'<option value="9"'+(sz===9?' selected':'')+'>9 oz</option>'
-    +'<option value="5"'+(sz===5?' selected':'')+'>5 oz</option>'
-    +'<option value="lid">Lid</option>'
-    +'<option value="glass">Glass</option>'
-    +'<option value="custom">Custom size</option>'
+    +'<option value="9"'+(szRaw==='9'?' selected':'')+'>9 oz</option>'
+    +'<option value="5"'+(szRaw==='5'?' selected':'')+'>5 oz</option>'
+    +'<option value="lid"'+(szRaw==='lid'?' selected':'')+'>Lid</option>'
+    +'<option value="glass"'+(szRaw==='glass'?' selected':'')+'>Glass</option>'
+    +'<option value="custom"'+(szRaw==='custom'?' selected':'')+'>Custom size</option>'
     +'</select></div>'
     +'<div class="fg"><label>Quantity</label><input type="number" id="bs-qty" value="'+qty+'" min="1" max="500" oninput="rBatch()"></div>'
-    +'<div class="fg"><label>Operator</label><input type="text" id="bs-op" value="'+(currentUser?currentUser.name:'')+'" placeholder="Name"></div>'
-    +'<div class="fg"><label>Lot number</label><input type="text" id="bs-lot" value="'+autoLotNumber()+'" placeholder="KS-2604-001" oninput="document.getElementById(\'lot-display\')&&(document.getElementById(\'lot-display\').textContent=this.value)"></div>'
+    +'<div class="fg"><label>Operator</label><input type="text" id="bs-op" value="'+opVal+'" placeholder="Name"></div>'
+    +'<div class="fg"><label>Lot number</label><input type="text" id="bs-lot" value="'+lotVal+'" placeholder="KS-2604-001" oninput="var ld=document.getElementById(\'lot-display\');if(ld)ld.textContent=this.value;"></div>'
     +'</div>'
-    // Custom size field
-    +(sz==='custom'||sz==='lid'||sz==='glass'?
-      '<div class="fg2" style="margin-bottom:12px;">'
-      +'<div class="fg"><label>Vessel dimensions</label><input type="text" id="bs-custom" value="'+customField+'" placeholder="e.g. 4in dia x 3in tall"></div>'
-      +'<div class="fg"><label>Unit</label><div class="utog"><button class="ub'+(unit==='g'?' on':'')+'" onclick="unit=\'g\';save();rBatch()">g</button><button class="ub'+(unit==='kg'?' on':'')+'" onclick="unit=\'kg\';save();rBatch()">kg</button></div></div>'
-      +'</div>'
-      :'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><div class="fg"><label>Unit</label><div class="utog"><button class="ub'+(unit==='g'?' on':'')+'" onclick="unit=\'g\';save();rBatch()">g</button><button class="ub'+(unit==='kg'?' on':'')+'" onclick="unit=\'kg\';save();rBatch()">kg</button></div></div></div>')
+    +(isCustom?'<div class="fg2" style="margin-bottom:12px;"><div class="fg"><label>Vessel dimensions</label><input type="text" id="bs-custom" value="'+custDim+'" placeholder="e.g. 4in dia x 3in tall"></div>'
+    +'<div class="fg"><label>Unit</label><div class="utog"><button class="ub'+(unit==='g'?' on':'')+'" onclick="unit=\'g\';save();rBatch()">g</button><button class="ub'+(unit==='kg'?' on':'')+'" onclick="unit=\'kg\';save();rBatch()">kg</button></div></div></div>'
+    :'<div style="margin-bottom:12px;"><div class="utog" style="display:inline-flex;"><button class="ub'+(unit==='g'?' on':'')+'" onclick="unit=\'g\';save();rBatch()">g</button><button class="ub'+(unit==='kg'?' on':'')+'" onclick="unit=\'kg\';save();rBatch()">kg</button></div></div>')
+    +'</div>'
 
-    // ── METRICS ──
-    +'<div class="metrics" style="margin-bottom:20px;">'
-    +'<div class="mcard"><div class="ml">Vessels</div><div class="mv">'+qty+'</div><div class="ms">'+(sz==='custom'||sz==='lid'||sz==='glass'?sz:sz+'oz')+'</div></div>'
+    // ── BATCH SUMMARY (prints) ──
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px;">'
+    +'<div class="mcard"><div class="ml">Vessels</div><div class="mv">'+qty+'</div><div class="ms">'+(isCustom?(custDim||szRaw):sz+'oz')+'</div></div>'
+    +'<div class="mcard"><div class="ml">Operator</div><div class="mv" style="font-size:14px;">'+opVal+'</div></div>'
     +'<div class="mcard"><div class="ml">Cost/vessel</div><div class="mv" style="font-size:16px;">$'+cp.toFixed(2)+'</div></div>'
-    +'<div class="mcard"><div class="ml">Margin</div><div class="mv" style="color:'+mgc(mg)+';font-size:16px;">'+mg.toFixed(0)+'%</div></div>'
-    +'<div class="mcard"><div class="ml">Total cost</div><div class="mv" style="font-size:16px;">$'+tc.toFixed(2)+'</div></div>'
     +'</div>'
 
-    // ── TOTAL BATCH ──
-    +'<div class="slbl">Total batch weights</div>'
-    +'<div class="cgold" style="margin-bottom:14px;">'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">'
-    +[['White Portland Type I',fmt(totalPort)],['325 Mesh Silica',fmt(totalSil)],['Water (total)',fmt(totalWater)],['Black Pigment',fmt(totalPig)],['Superplasticizer',spGrams.toFixed(1)+'g']].map(function(row){
-      return '<div class="dr"><span class="dk">'+row[0]+'</span><span class="dv" style="color:var(--gold);font-weight:700;">'+row[1]+'</span></div>';
-    }).join('')
-    +'</div></div>'
+    // ── TOTAL BATCH WEIGHTS (prints) ──
+    +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin:20px 0 10px;">Total batch weights</div>'
+    +'<div style="background:rgba(232,213,163,.06);border:2px solid rgba(232,213,163,.3);border-radius:var(--r2);padding:16px;margin-bottom:16px;">'
+    +'<table style="width:100%;border-collapse:collapse;font-size:15px;">'
+    +'<thead><tr style="border-bottom:2px solid rgba(232,213,163,.3);">'
+    +'<th style="text-align:left;padding:8px 6px;font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;">Ingredient</th>'
+    +'<th style="text-align:right;padding:8px 6px;font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;">Batch total</th>'
+    +'<th style="text-align:right;padding:8px 6px;font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;">Cost</th>'
+    +'<th style="text-align:center;padding:8px 6px;font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;" class="no-print">Done</th>'
+    +'</tr></thead><tbody>'
+    +'<tr style="border-bottom:1px solid rgba(232,213,163,.15);"><td style="font-weight:700;font-size:15px;padding:11px 6px;">White Portland Type I</td><td style="text-align:right;font-family:var(--mono);font-size:16px;font-weight:700;padding:11px 6px;">'+fmt(totalPort)+'</td><td style="text-align:right;font-family:var(--mono);font-size:14px;padding:11px 6px;color:var(--t3);">$'+c.port.toFixed(2)+'</td><td class="ctr no-print" style="padding:11px 6px;"><input type="checkbox" style="width:20px;height:20px;accent-color:var(--gold)"></td></tr>'
+    +'<tr style="border-bottom:1px solid rgba(232,213,163,.15);"><td style="font-weight:700;font-size:15px;padding:11px 6px;">325 Mesh Silica</td><td style="text-align:right;font-family:var(--mono);font-size:16px;font-weight:700;padding:11px 6px;">'+fmt(totalSil)+'</td><td style="text-align:right;font-family:var(--mono);font-size:14px;padding:11px 6px;color:var(--t3);">$'+c.sil.toFixed(2)+'</td><td class="ctr no-print" style="padding:11px 6px;"><input type="checkbox" style="width:20px;height:20px;accent-color:var(--gold)"></td></tr>'
+    +'<tr style="border-bottom:1px solid rgba(232,213,163,.15);"><td style="font-weight:700;font-size:15px;padding:11px 6px;">Black Pigment</td><td style="text-align:right;font-family:var(--mono);font-size:16px;font-weight:700;padding:11px 6px;">'+fmt(totalPig)+'</td><td style="text-align:right;font-family:var(--mono);font-size:14px;padding:11px 6px;color:var(--t3);">$'+c.pig.toFixed(2)+'</td><td class="ctr no-print" style="padding:11px 6px;"><input type="checkbox" style="width:20px;height:20px;accent-color:var(--gold)"></td></tr>'
+    +'<tr style="border-bottom:1px solid rgba(232,213,163,.15);"><td style="font-weight:700;font-size:15px;padding:11px 6px;">Water</td><td style="text-align:right;font-family:var(--mono);font-size:16px;font-weight:700;padding:11px 6px;">'+fmt(totalWater)+'</td><td style="text-align:right;font-family:var(--mono);font-size:14px;padding:11px 6px;color:var(--t3);">--</td><td class="ctr no-print" style="padding:11px 6px;"><input type="checkbox" style="width:20px;height:20px;accent-color:var(--gold)"></td></tr>'
+    +'<tr style="border-bottom:1px solid rgba(232,213,163,.15);"><td style="font-weight:700;font-size:15px;padding:11px 6px;">Superplasticizer</td><td style="text-align:right;font-family:var(--mono);font-size:16px;font-weight:700;padding:11px 6px;">'+spGrams.toFixed(1)+'g</td><td style="text-align:right;font-family:var(--mono);font-size:14px;padding:11px 6px;color:var(--t3);">$'+c.sp.toFixed(2)+'</td><td class="ctr no-print" style="padding:11px 6px;"><input type="checkbox" style="width:20px;height:20px;accent-color:var(--gold)"></td></tr>'
+    +'<tr style="border-top:2px solid var(--gold);background:rgba(232,213,163,.08);">'
+    +'<td style="font-weight:800;font-size:16px;padding:13px 6px;color:var(--gold);">TOTAL</td>'
+    +'<td style="text-align:right;font-family:var(--mono);font-size:20px;font-weight:800;padding:13px 6px;color:var(--gold);">'+fmt(totalAll)+'</td>'
+    +'<td style="text-align:right;font-family:var(--mono);font-size:16px;font-weight:700;padding:13px 6px;color:var(--gold);">$'+tc.toFixed(2)+'</td>'
+    +'<td class="no-print"></td>'
+    +'</tr>'
+    +'</tbody></table>'
+    +'</div>'
 
-    // ── PER VESSEL ──
-    +'<div class="slbl">Per vessel weights</div>'
+    // ── MIX PROCESS (prints) ──
+    +'<div class="slbl">Mix process</div>'
     +'<div class="card" style="margin-bottom:14px;">'
-    +[['White Portland Type I',fmt(r.port)],['325 Mesh Silica',fmt(r.sil)],['Water',fmt(r.water)],['Black Pigment',fmt(r.pig)],['Superplasticizer',(r.port*0.0075).toFixed(1)+'g']].map(function(row){
-      return '<div class="dr"><span class="dk">'+row[0]+'</span><span class="dv">'+row[1]+'</span></div>';
-    }).join('')
+    +'<div class="step"><div class="snum">1</div><div class="stxt"><strong>Dry mix</strong><br>Combine '+fmt(totalPort)+' Portland + '+fmt(totalSil)+' silica + '+fmt(totalPig)+' pigment. Mix dry until uniform -- no streaks.</div></div>'
+    +'<div class="step"><div class="snum">2</div><div class="stxt"><strong>First water addition</strong><br>Add '+water80+'g of water gradually while mixing. Mix 1 full minute.</div></div>'
+    +'<div class="step"><div class="snum">3</div><div class="stxt"><strong>Add superplasticizer</strong><br>Add '+spGrams.toFixed(1)+'g superplasticizer. Mix 30 seconds. Mix should become more fluid.</div></div>'
+    +'<div class="step"><div class="snum">4</div><div class="stxt"><strong>Final water addition</strong><br>Slowly add remaining '+water20+'g water. Adjust as needed for smooth consistency.</div></div>'
+    +'<div class="step"><div class="snum">5</div><div class="stxt"><strong>Pour immediately</strong><br>Total mix time 2-3 minutes. Working window: 30-60 minutes. Have molds ready before mixing.</div></div>'
     +'</div>'
 
-    // ── INGREDIENT CHECKLIST ──
-    +'<div class="slbl">Ingredient checklist</div>'
-    +'<div style="overflow-x:auto;margin-bottom:14px;"><table class="tbl"><thead><tr><th style="min-width:160px;">Ingredient</th><th>Batch total</th><th>Cost</th><th class="ctr">Weighed &#10003;</th></tr></thead><tbody>'
-    +[['White Portland Type I',fmt(totalPort),c.port],['325 Mesh Silica',fmt(totalSil),c.sil],['Black Pigment',fmt(totalPig),c.pig],['Water (add in steps)',fmt(totalWater),null],['Superplasticizer',spGrams.toFixed(1)+'g',c.sp]].map(function(row){
-      return '<tr><td style="font-weight:600;">'+row[0]+'</td><td>'+row[1]+'</td><td>'+(row[2]!==null?'$'+row[2].toFixed(3):'--')+'</td><td class="ctr"><input type="checkbox" style="width:18px;height:18px;accent-color:var(--gold)"></td></tr>';
-    }).join('')
-    +'<tr class="sum"><td>Total dry + water</td><td>'+fmt((r.port+r.sil+r.water+r.pig)*qty)+'</td><td>$'+tc.toFixed(2)+'</td><td></td></tr>'
-    +'</tbody></table></div>'
-
-    // ── MIX PROCESS ──
-    +'<div class="slbl">Mix process (exact amounts)</div>'
-    +'<div class="card" style="margin-bottom:14px;">'
-    +[
-      ['Dry mix','Combine '+fmt(totalPort)+' Portland + '+fmt(totalSil)+' silica + '+fmt(totalPig)+' pigment. Mix dry until color is fully uniform with no streaks.'],
-      ['First water addition','Add '+water80+'g ('+fmt(water80)+') water gradually while mixing. Mix for 1 full minute.'],
-      ['Add superplasticizer','Add '+spGrams.toFixed(1)+'g superplasticizer. Mix 30 seconds. Mixture should become more fluid.'],
-      ['Final water addition','Slowly add remaining '+water20+'g ('+fmt(water20)+') water. Adjust as needed for correct consistency.'],
-      ['Final mix','Mix total 2-3 minutes. Consistency should coat a spoon smoothly. Pour immediately.'],
-      ['Working window','You have 30-60 minutes before mix begins to set. Have molds ready before mixing.']
-    ].map(function(s,i){
-      return '<div class="step"><div class="snum">'+(i+1)+'</div><div class="stxt"><strong>'+s[0]+'</strong><br>'+s[1]+'</div></div>';
-    }).join('')
-    +'</div>'
-
-    // ── CURING ──
+    // ── CURING SCHEDULE (prints) ──
     +'<div class="slbl">Curing schedule</div>'
     +'<div class="card" style="margin-bottom:14px;">'
-    +[['Pour date',today()+' &middot; Day 0'],['Demold (18-24 hrs)',addD(1)+' &middot; Day 1'],['Seal (48 hrs min)',addD(2)+' &middot; Day 2'],['Ready to ship',addD(3)+' &middot; Day 3'],['Full cure',addD(28)+' &middot; Day 28']].map(function(row){
-      return '<div class="dr"><span class="dk">'+row[0]+'</span><span class="dv">'+row[1]+'</span></div>';
-    }).join('')
+    +'<div class="dr"><span class="dk" style="font-weight:700;color:var(--t);">&#9899; Pour date</span><span class="dv" style="font-size:13px;font-weight:600;color:var(--gold);">'+today()+' &mdash; Day 0</span></div>'
+    +'<div class="dr"><span class="dk" style="font-weight:700;color:var(--t);">&#128275; Demold</span><span class="dv" style="font-size:13px;font-weight:600;">'+addD(1)+' &mdash; Day 1 (18-24 hrs)</span></div>'
+    +'<div class="dr"><span class="dk" style="font-weight:700;color:var(--t);">&#128737; Seal</span><span class="dv" style="font-size:13px;font-weight:600;">'+addD(2)+' &mdash; Day 2 (48 hrs min)</span></div>'
+    +'<div class="dr"><span class="dk" style="font-weight:700;color:var(--t);">&#128557; Ready for candle pour</span><span class="dv" style="font-size:13px;font-weight:600;color:var(--green);">'+addD(3)+' &mdash; Day 3</span></div>'
+    +'<div class="dr"><span class="dk" style="font-weight:700;color:var(--t);">&#9989; Ready to ship</span><span class="dv" style="font-size:13px;font-weight:600;color:var(--green);">'+addD(3)+' &mdash; Day 3+</span></div>'
+    +'<div class="dr"><span class="dk">Full concrete cure</span><span class="dv">'+addD(28)+' &mdash; Day 28</span></div>'
     +'</div>'
 
-    // ── QC ──
+    // ── QC CHECKLIST (prints) ──
     +'<div class="slbl">Quality control</div>'
     +'<div class="qcg" style="margin-bottom:14px;">'
-    +['Color consistent batch to batch','Surface smooth, no pitting or air holes','No cracks after demold','Weight within spec (+/- 5g)','Sealer applied evenly','Logo recess clean and sharp (9oz)','Lot number engraved on base','Approved for fulfillment'].map(function(t){
+    +['Color consistent','Surface smooth, no pitting','No air bubbles','No cracks after demold','Sealer applied evenly','Logo recess clean (9oz)','Lot number engraved on base','Approved for fulfillment'].map(function(t){
       return '<div class="qci"><input type="checkbox"><span>'+t+'</span></div>';
     }).join('')
     +'</div>'
 
-    // ── YIELD ──
-    +'<div class="slbl">Yield</div>'
-    +'<div class="fg3" style="margin-bottom:8px;">'
+    // ── YIELD (screen only) ──
+    +'<div class="slbl no-print">Yield</div>'
+    +'<div class="fg3 no-print" style="margin-bottom:8px;">'
     +'<div class="fg"><label>Poured</label><input type="number" id="bs-p" placeholder="--" oninput="cY()"></div>'
     +'<div class="fg"><label>Passed QC</label><input type="number" id="bs-pa" placeholder="--" oninput="cY()"></div>'
     +'<div class="fg"><label>Defects</label><input type="number" id="bs-d" placeholder="--" readonly></div>'
     +'</div>'
-    +'<div id="yr" style="font-size:13px;color:var(--t3);margin-bottom:14px;"></div>'
+    +'<div id="yr" style="font-size:13px;color:var(--t3);margin-bottom:14px;" class="no-print"></div>'
 
     // ── NOTES ──
     +'<div class="slbl">Batch notes</div>'
-    +'<div class="ff"><div class="fg"><textarea id="bs-n" placeholder="Consistency, color match, temperature, observations..."></textarea></div></div>'
+    +'<div class="ff"><div class="fg"><textarea id="bs-n" placeholder="Consistency observations, color match, temperature, adjustments..."></textarea></div></div>'
 
-    // ── QR CODE ──
-    +'<div class="slbl no-print">QR code &mdash; auto-generates with batch</div>'
-    +'<div id="bs-qr" style="margin-bottom:14px;padding:12px;background:var(--bg2);border-radius:var(--r);display:inline-block;border:1px solid var(--b);" class="no-print"></div>'
+    // ── QR CODE (prints on batch sheet) ──
+    +'<div class="slbl">Batch QR code &mdash; lot traceability</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:14px;flex-wrap:wrap;">'
+    +'<div>'
+    +'<div id="bs-qr" style="padding:8px;background:#fff;border-radius:var(--r);display:inline-block;border:2px solid #c4a96e;"></div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:4px;text-align:center;">Scan with Kuli Legacy app</div>'
+    +'</div>'
+    +'<div style="flex:1;min-width:200px;">'
+    +'<div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:6px;">What this QR code contains:</div>'
+    +'<div style="font-size:12px;color:var(--t2);line-height:1.8;">'
+    +'&#8226; Batch SKU: '+sku+'<br>'
+    +'&#8226; Lot number: '+lotVal+'<br>'
+    +'&#8226; Vessel size: '+(isCustom?(custDim||szRaw):sz+'oz')+'<br>'
+    +'&#8226; Quantity poured: '+qty+'<br>'
+    +'&#8226; Pour date: '+today()+'<br>'
+    +'&#8226; Operator: '+opVal+'<br>'
+    +'&#8226; Scan in app to view full batch record'
+    +'</div>'
+    +'<div style="margin-top:8px;font-size:11px;color:var(--t3);">Engrave lot number <strong style="color:var(--gold);">'+lotVal+'</strong> on base of each vessel for lifetime traceability.</div>'
+    +'</div>'
+    +'</div>'
 
-    // ── BUTTONS ──
+    // ── BUTTONS (screen only) ──
     +'<div class="brow no-print">'
     +'<button class="btn pri" onclick="window.print()">&#128424; Print batch sheet</button>'
     +'<button class="btn" onclick="svBatch()">&#128190; Save to history</button>'
+    +'<button class="btn go" id="scan-lot-btn">&#128247; Scan lot #</button>'
     +'</div>';
 
   // Generate QR code
-  var qrData=JSON.stringify({sku:sku,lot:document.getElementById('bs-lot')?.value||autoLotNumber(),size:(sz==='custom'||sz==='lid'||sz==='glass'?sz:sz+'oz'),qty:qty,date:today(),op:currentUser?currentUser.name:'--'});
-  mkQR('bs-qr',qrData);
+  // Simple short QR - just lot number for reliable encoding
+  var qrData=lotVal||sku;
+  setTimeout(function(){mkQR('bs-qr',qrData);},500);
+
+  // Attach scan lot button
+  setTimeout(function(){
+    var sb=document.getElementById('scan-lot-btn');
+    if(sb)sb.onclick=function(){
+      openScanner(function(text){
+        var le=document.getElementById('bs-lot');
+        if(le){le.value=text;var ld=document.getElementById('lot-display');if(ld)ld.textContent=text;}
+        toast('Lot scanned: '+text);
+      });
+    };
+  },100);
 }
 function cY(){const p=parseInt(document.getElementById('bs-p')?.value)||0;const pa=parseInt(document.getElementById('bs-pa')?.value)||0;const d=document.getElementById('bs-d');if(d)d.value=p>0?Math.max(0,p-pa):'';const r=document.getElementById('yr');if(r)r.textContent=p>0?((pa/p)*100).toFixed(1)+'% pass rate':'';}
 function svBatch(){
@@ -1480,7 +1660,13 @@ function rInv(){
   var isCandle=role==='denise';
   var isAdmin=currentUser&&currentUser.isAdmin;
 
-  el.innerHTML='<div class="ptitle">Inventory</div><div class="psub">Raw materials &middot; Finished goods &middot; Safety data</div>'
+  el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+    +'<div class="ptitle" style="margin-bottom:0;">Inventory</div>'
+    +'<div style="display:flex;gap:8px;">'
+    +'<button class="btn sm go" onclick="scanForInventory()">&#128247; Scan barcode</button>'
+    +'<button class="btn sm" onclick="scanBatchQR()">&#9638; Scan QR</button>'
+    +'</div></div>'
+    +'<div class="psub">Raw materials &middot; Finished goods &middot; Safety data</div>'
 
     // ── CONCRETE MATERIALS (Will + Admin only) ──
     +(isConcrete||isAdmin?
@@ -1519,6 +1705,29 @@ function rInv(){
     });
     document.querySelectorAll('.price-inp').forEach(function(inp){
       inp.oninput=function(){S.prices[inp.getAttribute('data-pk')]=parseFloat(inp.value)||0;save();};
+    });
+    // Camera tap on photo placeholder
+    document.querySelectorAll('[data-cam]').forEach(function(el){
+      el.onclick=function(){
+        var pid=el.getAttribute('data-cam');
+        openCamera(function(dataUrl){saveProductPhoto(pid,dataUrl);});
+      };
+    });
+    // Tap existing photo to replace
+    document.querySelectorAll('.fg-photo').forEach(function(img){
+      img.onclick=function(){
+        var pid=img.getAttribute('data-pid');
+        openCamera(function(dataUrl){saveProductPhoto(pid,dataUrl);});
+      };
+    });
+    document.querySelectorAll('[data-photoid]').forEach(function(el){
+      el.onclick=function(){
+        var pid=el.getAttribute('data-photoid');
+        openCamera(function(dataUrl){saveProductPhoto(pid,dataUrl);});
+      };
+    });
+    document.querySelectorAll('[data-photoid-old]').forEach(function(el){
+      el.onclick=function(){takeProductPhoto(el.getAttribute('data-photoid'));};
     });
     document.querySelectorAll('.bag-inp').forEach(function(inp){
       inp.oninput=function(){
@@ -1571,8 +1780,12 @@ function fgHTML(){
       html+='<div class="ivc'+(low?' low':'')+'" style="margin-bottom:8px;padding:12px 14px;">'
         +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
         +'<div style="flex:1;">'
+        +'<div style="display:flex;align-items:center;gap:8px;">'
+        +(S.fgPhotos&&S.fgPhotos[p.id]?'<img src="'+( S.fgPhotos[p.id])+'" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--b2);">':'<div style="width:44px;height:44px;border-radius:6px;border:1px dashed var(--b2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);font-size:18px;" data-photoid="'+p.id+'">&#128247;</div>')
+        +'<div>'
         +'<div style="font-size:13px;font-weight:700;color:var(--t);">'+p.name+'</div>'
         +'<div style="font-size:11px;color:var(--t3);margin-top:2px;">'+p.sku+' &middot; Cost: $'+p.cost.toFixed(2)+' &middot; <span style="color:'+mgc(mg)+'">'+mg.toFixed(0)+'% margin</span></div>'
+        +'</div></div>'
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
         +'<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">'
@@ -1705,6 +1918,26 @@ function shTab(t){
   else if(t==='history')el.innerHTML=shHistoryHTML();
 }
 
+function quickStartShow(){
+  var name=prompt('Show name:');
+  if(!name)return;
+  var loc=prompt('Location (city, state):') || '';
+  var goal=parseFloat(prompt('Revenue goal ($):') || '500') || 500;
+  S.activeShow={
+    id:'SH'+Date.now(),
+    name:name,
+    location:loc,
+    date:iso(),
+    fee:0,travel:0,
+    goal:goal,
+    sales:[],
+    customerCount:0,
+    status:'active'
+  };
+  save();
+  renderActiveShow(document.getElementById('s-show'));
+}
+
 function shPlanHTML(){
   return '<div class="cgold" style="margin-bottom:16px;">'
     +'<div class="ctitle" style="font-family:var(--serif);font-size:20px;color:var(--gold);">Research a show</div>'
@@ -1733,6 +1966,10 @@ function shPlanHTML(){
     +'<span id="sh-research-txt">Research this show with AI</span>'
     +'</button>'
     +'<div style="font-size:11px;color:var(--t3);margin-top:6px;">'+(online&&S.apiKey?'AI will research attendance, demographics, and give you a Go/No Go recommendation.':'Offline -- will generate recommendation based on show type and your inventory.')+'</div>'
+    +'</div>'
+    +'<div style="text-align:center;margin-bottom:16px;">'
+    +'<div style="font-size:11px;color:var(--t3);margin-bottom:8px;">Already at a show? Skip planning and start tracking now.</div>'
+    +'<button class="btn go" style="width:100%;justify-content:center;" onclick="quickStartShow()">&#9654; Quick start show (no planning)</button>'
     +'</div>'
     +'<div id="sh-research-result"></div>';
 }
@@ -2490,11 +2727,20 @@ function rSettings(){
     +'</div>'
     +'<div style="font-size:11px;color:var(--t3);margin-top:10px;">Last sync: <span id="sb-last">'+(S.sbLastSync||'Never')+'</span></div>'
     +'</div>'
+    +'<div class="card" style="margin-top:10px;margin-bottom:10px;"><div class="ctitle">Change my PIN</div>'
+    +'<div style="font-size:12px;color:var(--t3);margin-bottom:12px;line-height:1.6;">Update your own PIN. You will need your current PIN to confirm.</div>'
+    +'<div class="fg2"><div class="fg"><label>Current PIN</label><input type="password" id="cp-old" inputmode="numeric" maxlength="4" placeholder="Current 4-digit PIN"></div>'
+    +'<div class="fg"><label>New PIN</label><input type="password" id="cp-new" inputmode="numeric" maxlength="4" placeholder="New 4-digit PIN"></div></div>'
+    +'<div class="fg" style="margin-bottom:10px;"><label>Confirm new PIN</label><input type="password" id="cp-new2" inputmode="numeric" maxlength="4" placeholder="Confirm new PIN"></div>'
+    +'<div id="cp-err" style="font-size:12px;color:var(--red);min-height:16px;margin-bottom:8px;"></div>'
+    +'<button class="btn pri" id="cp-btn">Update PIN</button>'
+    +'</div>'
     +'<div class="card" style="margin-top:10px;"><div class="ctitle">Data</div>'
     +'<div class="dr"><span class="dk">Batches</span><span class="dv">'+(S.batches.length+S.cBatches.length)+'</span></div>'
     +'<div class="dr"><span class="dk">Orders</span><span class="dv">'+S.orders.length+'</span></div>'
     +'<div class="dr"><span class="dk">Fragrances</span><span class="dv">'+(S.fragLib.length+S.customScents.length)+'</span></div>'
-    +'<div class="brow"><button class="btn" onclick="expD()">Export data</button><button class="btn danger" onclick="clrAll()">Clear all data</button></div>'
+    +'<div class="brow"><button class="btn" onclick="expD()">Export data</button><button class="btn" onclick="impD()">Import data</button><button class="btn danger" onclick="clrAll()">Clear all data</button></div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:8px;">Export saves all data as JSON. Import restores from a previously exported file. Use this when updating the app to a new version.</div>'
     +'</div>';
 
   // Set API key value
@@ -2502,6 +2748,8 @@ function rSettings(){
   var sbUrlEl=document.getElementById('sb-url');if(sbUrlEl)sbUrlEl.value=S.sbUrl||'';
   var sbKeyEl=document.getElementById('sb-key');if(sbKeyEl)sbKeyEl.value=S.sbKey||'';
   if(S.sbUrl&&S.sbKey){updSBDot(true);}
+  var cpBtn=document.getElementById('cp-btn');
+  if(cpBtn)cpBtn.onclick=changeMyPin;
 
   // Attach approval/deny handlers
   document.querySelectorAll('[data-action="approve"]').forEach(btn=>{
@@ -2529,10 +2777,13 @@ function approveRequest(i){
 }
 
 function denyRequest(i){
-  const req=S.requests[i];if(!req)return;
-  if(!confirm('Deny request from '+req.name+'?'))return;
+  var req=S.requests[i];if(!req)return;
+  if(!confirm('Deny request from '+req.name+'? They will be notified they do not have access.'))return;
+  // Add to denied list so user sees a message instead of generic error
+  if(!S.deniedUsers)S.deniedUsers=[];
+  S.deniedUsers.push({name:req.name,nameLower:req.nameLower||req.name.toLowerCase(),deniedAt:iso()});
   S.requests.splice(i,1);
-  save();toast('Request denied');rSettings();
+  save();toast(req.name+' request denied');rSettings();
 }
 
 function removeUser(uid,name){
@@ -2580,11 +2831,76 @@ function svKey(){const k=document.getElementById('api-k')?.value?.trim();S.apiKe
 async function tstKey(){var st=document.getElementById('api-st');if(!S.apiKey){st.innerHTML='<span style="color:var(--red);">No key set</span>';return;}if(!online){st.innerHTML='<span style="color:var(--yellow);">Offline</span>';return;}st.innerHTML='<span class="spin"></span>';try{await callClaude('Reply with only the words: Kuli Legacy connected');st.innerHTML='<span style="color:var(--green);">&#10003; AI connected and ready</span>';}catch(e){st.innerHTML='<span style="color:var(--red);">'+e.message+'</span>';}}
 function clrKey(){if(confirm('Remove API key?')){S.apiKey='';save();dots();rSettings();}}
 function rstPIN(r){if(role!=='will'&&r!==role){toast('Only Will (admin) can reset other PINs');return;}if(confirm('Reset PIN for '+ROLES[r].label+'?')){S.pins[r]='';S.pinsSet[r]=false;save();toast(ROLES[r].label+' PIN reset');rSettings();}}
+function changeMyPin(){
+  var oldEl=document.getElementById('cp-old');
+  var newEl=document.getElementById('cp-new');
+  var new2El=document.getElementById('cp-new2');
+  var errEl=document.getElementById('cp-err');
+  var oldPin=oldEl?oldEl.value.trim():'';
+  var newPin=newEl?newEl.value.trim():'';
+  var newPin2=new2El?new2El.value.trim():'';
+  if(!oldPin||!newPin||!newPin2){if(errEl)errEl.textContent='Fill in all three fields';return;}
+  if(newPin.length!==4){if(errEl)errEl.textContent='New PIN must be 4 digits';return;}
+  if(newPin!==newPin2){if(errEl)errEl.textContent='New PINs do not match';return;}
+  // Find current user
+  var user=S.users.find(function(u){return u.id===currentUser.id;});
+  if(!user){if(errEl)errEl.textContent='User not found';return;}
+  if(hp(oldPin)!==user.pinHash){if(errEl)errEl.textContent='Current PIN is incorrect';return;}
+  user.pinHash=hp(newPin);
+  save();
+  syncToCloud();
+  if(errEl){errEl.style.color='var(--green)';errEl.textContent='PIN updated successfully!';}
+  if(oldEl)oldEl.value='';
+  if(newEl)newEl.value='';
+  if(new2El)new2El.value='';
+}
+
 function expD(){const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({...S,pins:{},apiKey:'[redacted]'},null,2));a.download='kuli_data_'+iso()+'.json';a.click();}
+function impD(){
+  var inp=document.createElement('input');
+  inp.type='file';inp.accept='.json';
+  inp.onchange=function(){
+    var file=inp.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        var imported=JSON.parse(e.target.result);
+        if(!imported.batches&&!imported.users&&!imported.orders){alert('Not a valid Kuli Legacy export file.');return;}
+        if(!confirm('Import data from '+file.name+'?\nThis merges with your current data. API key and Supabase credentials are preserved.'))return;
+        var sbUrl=S.sbUrl,sbKey=S.sbKey,apiKey=S.apiKey;
+        ['bSeq','cSeq','oSeq','unit','bags','prices','batches','cBatches','orders','shows','fragLib','customScents','content','users','requests','fgStock','monthlyGoal','deniedUsers'].forEach(function(k){if(imported.hasOwnProperty(k))S[k]=imported[k];});
+        S.sbUrl=sbUrl;S.sbKey=sbKey;S.apiKey=apiKey;
+        ['users','requests','batches','cBatches','orders','shows','fragLib','customScents','content'].forEach(function(k){if(!Array.isArray(S[k]))S[k]=[];});
+        save();syncToCloud();
+        alert('Import successful! '+S.batches.length+' concrete batches, '+S.cBatches.length+' candle batches, '+S.orders.length+' orders, '+S.users.length+' users loaded.');
+        location.reload();
+      }catch(err){alert('Import failed: '+err.message);}
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(inp);inp.click();document.body.removeChild(inp);
+}
+
 function clrAll(){if(confirm('Clear ALL data? This cannot be undone.')){localStorage.removeItem(LS);location.reload();}}
 
 // QR
-function mkQR(id,data){const el=document.getElementById(id);if(!el||typeof QRCode==='undefined')return;el.innerHTML='';const c=document.createElement('canvas');el.appendChild(c);try{QRCode.toCanvas(c,data,{width:90,margin:1,color:{dark:'#000',light:'#fff'}},()=>{});}catch(e){}}
+function mkQR(id,data,attempt){
+  var el=document.getElementById(id);
+  if(!el)return;
+  if(typeof QRCode==='undefined'){
+    if((attempt||0)<15){setTimeout(function(){mkQR(id,data,(attempt||0)+1);},200);}
+    else{el.innerHTML='<div style="font-size:10px;color:#999;padding:8px;">QR unavailable offline</div>';}
+    return;
+  }
+  el.innerHTML='';
+  var cv=document.createElement('canvas');
+  el.appendChild(cv);
+  try{
+    QRCode.toCanvas(cv,data,{width:120,margin:1,color:{dark:'#000000',light:'#ffffff'}},function(){});
+  }catch(e){
+    el.innerHTML='<div style="font-size:10px;color:#999;">QR error</div>';
+  }
+}
 
 // ── SUPABASE SYNC ──
 var SB_DEVICE_ID = 'kuli-main';
@@ -2740,7 +3056,7 @@ async function cloudBootSync(){
       cloudData.sbKey=S.sbKey;
       cloudData.apiKey=cloudData.apiKey||S.apiKey;
       var safeKeys=['bSeq','cSeq','oSeq','unit','apiKey','bags','prices','batches','cBatches',
-        'orders','shows','activeShow','fragLib','customScents','content','pwaShown','users','requests','sbLastSync'];
+        'orders','shows','activeShow','fragLib','customScents','content','pwaShown','users','requests','sbLastSync','fgStock','fgPhotos','monthlyGoal','deniedUsers','pipeline','packMaterials'];
       safeKeys.forEach(function(k){if(cloudData.hasOwnProperty(k))S[k]=cloudData[k];});
       // Always guarantee arrays
       ['users','requests','batches','cBatches','orders','shows','fragLib','customScents','content'].forEach(function(k){
@@ -2753,6 +3069,264 @@ async function cloudBootSync(){
   }catch(e){
     console.warn('Boot sync error:',e);
   }
+}
+
+// ── BARCODE SCANNING ──
+var _scanStream=null;
+var _scanCallback=null;
+var _scanAnimFrame=null;
+
+function startScan(callback){
+  _scanCallback=callback;
+  var overlay=document.getElementById('scan-overlay');
+  if(overlay)overlay.classList.add('show');
+  var video=document.getElementById('scan-video');
+  if(!video)return;
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}})
+    .then(function(stream){
+      _scanStream=stream;
+      video.srcObject=stream;
+      video.play();
+      _scanAnimFrame=requestAnimationFrame(function tick(){
+        if(video.readyState===video.HAVE_ENOUGH_DATA){
+          var canvas=document.createElement('canvas');
+          canvas.width=video.videoWidth;
+          canvas.height=video.videoHeight;
+          var ctx=canvas.getContext('2d');
+          ctx.drawImage(video,0,0,canvas.width,canvas.height);
+          // Use BarcodeDetector if available (Chrome/Safari 17+)
+          if('BarcodeDetector' in window){
+            var detector=new BarcodeDetector({formats:['qr_code','ean_13','ean_8','code_128','code_39','upc_a','upc_e','data_matrix']});
+            detector.detect(canvas).then(function(barcodes){
+              if(barcodes.length>0){
+                var result=barcodes[0].rawValue;
+                closeScan();
+                if(_scanCallback)_scanCallback(result);
+                return;
+              }
+            }).catch(function(){});
+          }
+        }
+        _scanAnimFrame=requestAnimationFrame(tick);
+      });
+    })
+    .catch(function(err){
+      closeScan();
+      alert('Camera access required for scanning. Please allow camera access in Safari Settings.');
+    });
+}
+
+function closeScan(){
+  var overlay=document.getElementById('scan-overlay');
+  if(overlay)overlay.classList.remove('show');
+  if(_scanStream){_scanStream.getTracks().forEach(function(t){t.stop();});_scanStream=null;}
+  if(_scanAnimFrame){cancelAnimationFrame(_scanAnimFrame);_scanAnimFrame=null;}
+  _scanCallback=null;
+}
+
+function scanForInventory(){
+  var msg=document.getElementById('scan-msg');
+  if(msg)msg.textContent='Scan a material bag barcode to look up inventory';
+  startScan(function(result){
+    toast('Scanned: '+result);
+    // Try to match to a bag
+    var matched=null;
+    Object.entries(S.bags).forEach(function(e){
+      if(e[1].barcode===result||e[1].lot===result)matched=e[0];
+    });
+    if(matched){
+      go('inventory');
+      toast('Found: '+S.bags[matched].name);
+    } else {
+      // Try matching finished goods
+      var fg=null;
+      if(S.fgBarcodes&&S.fgBarcodes[result]){fg=result;}
+      if(fg){
+        go('inventory');
+        toast('Found finished good');
+      } else {
+        toast('No match found for: '+result.slice(0,20));
+      }
+    }
+  });
+}
+
+function scanBatchQR(){
+  var msg=document.getElementById('scan-msg');
+  if(msg)msg.textContent='Scan a batch sheet QR code';
+  startScan(function(result){
+    try{
+      var data=JSON.parse(result);
+      if(data.sku||data.lot){
+        // Find the batch
+        var batch=[...S.batches,...S.cBatches].find(function(b){
+          return b.sku===data.sku||(data.lot&&b.lot===data.lot);
+        });
+        if(batch){
+          toast('Batch found: '+batch.sku);
+          go('reports');
+        } else {
+          toast('Batch '+data.sku+' not in history yet');
+        }
+      } else {
+        toast('QR data: '+result.slice(0,40));
+      }
+    }catch(e){
+      toast('Scanned: '+result.slice(0,40));
+    }
+  });
+}
+
+// ── CAMERA FOR PRODUCT PHOTOS ──
+var _camStream=null;
+var _camCallback=null;
+
+function openCamera(callback){
+  _camCallback=callback;
+  var overlay=document.getElementById('cam-overlay');
+  if(overlay)overlay.classList.add('show');
+  var video=document.getElementById('cam-video');
+  if(!video)return;
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}})
+    .then(function(stream){
+      _camStream=stream;
+      video.srcObject=stream;
+      video.play();
+    })
+    .catch(function(err){
+      closeCam();
+      alert('Camera access required. Please allow camera access in Safari Settings.');
+    });
+  // Attach capture button
+  var btn=document.getElementById('cam-capture-btn');
+  if(btn){
+    btn.onclick=function(){
+      var canvas=document.getElementById('cam-canvas');
+      var v=document.getElementById('cam-video');
+      if(!canvas||!v)return;
+      canvas.width=v.videoWidth;
+      canvas.height=v.videoHeight;
+      canvas.getContext('2d').drawImage(v,0,0);
+      var dataUrl=canvas.toDataURL('image/jpeg',0.85);
+      closeCam();
+      if(_camCallback)_camCallback(dataUrl);
+    };
+  }
+}
+
+function closeCam(){
+  var overlay=document.getElementById('cam-overlay');
+  if(overlay)overlay.classList.remove('show');
+  if(_camStream){_camStream.getTracks().forEach(function(t){t.stop();});_camStream=null;}
+  _camCallback=null;
+}
+
+function takeProductPhoto(productId){
+  openCamera(function(dataUrl){
+    if(!S.productPhotos)S.productPhotos={};
+    S.productPhotos[productId]=dataUrl;
+    save();
+    toast('Photo saved!');
+    rInv();
+  });
+}
+
+// ── BARCODE SCANNER ──
+var _scanStream=null,_scanCB=null,_zxReader=null;
+
+function openScanner(cb){
+  _scanCB=cb;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    var manual=prompt('Camera not available. Enter barcode or lot number manually:');
+    if(manual&&cb)cb(manual.trim());
+    return;
+  }
+  var ov=document.getElementById('scanner-overlay');
+  var vid=document.getElementById('scanner-video');
+  var res=document.getElementById('scanner-result');
+  if(!ov||!vid)return;
+  if(res)res.textContent='';
+  ov.classList.add('show');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+    .then(function(stream){
+      _scanStream=stream;
+      vid.srcObject=stream;
+      vid.play();
+      if(typeof ZXing!=='undefined'){
+        _zxReader=new ZXing.BrowserMultiFormatReader();
+        _zxReader.decodeFromVideoDevice(null,'scanner-video',function(result,err){
+          if(result){
+            if(navigator.vibrate)navigator.vibrate(100);
+            var text=result.getText();
+            stopScanner();
+            if(_scanCB)_scanCB(text);
+          }
+        });
+      } else {
+        if(res)res.textContent='Scanning... (tap Done and enter manually if needed)';
+      }
+    })
+    .catch(function(err){
+      ov.classList.remove('show');
+      if(err.name==='NotAllowedError'){alert('Camera permission denied. Allow camera in browser settings.');}
+      else{
+        var manual=prompt('Camera error. Enter code manually:');
+        if(manual&&cb)cb(manual.trim());
+      }
+    });
+}
+
+function stopScanner(){
+  if(_scanStream){_scanStream.getTracks().forEach(function(t){t.stop();});_scanStream=null;}
+  if(_zxReader){try{_zxReader.reset();}catch(e){}  _zxReader=null;}
+  var ov=document.getElementById('scanner-overlay');
+  if(ov)ov.classList.remove('show');
+}
+
+function cancelScanner(){stopScanner();_scanCB=null;}
+
+function handleScan(text){
+  try{
+    var d=JSON.parse(text);
+    if(d.sku||d.lot){
+      var b=S.batches.find(function(x){return x.sku===d.sku||x.lot===d.lot;});
+      var info='Batch QR Code\n\nSKU: '+(d.sku||'--')+'\nLot: '+(d.lot||'--')+'\nSize: '+(d.size||'--')+'\nQty: '+(d.qty||'--')+'\nDate: '+(d.date||'--')+'\nOperator: '+(d.op||'--');
+      if(b)info+='\n\nBatch record found:\nCost/vessel: $'+b.costPer+'\nQC: '+(b.passed!==null?b.passed+'/'+b.qty+' passed':'pending');
+      alert(info);return;
+    }
+  }catch(e){}
+  var lot=S.batches.find(function(b){return b.lot&&b.lot.toLowerCase()===text.toLowerCase();});
+  if(lot){alert('Lot: '+lot.lot+'\nSKU: '+lot.sku+'\nDate: '+lot.date+'\nOperator: '+lot.op+'\nQC: '+(lot.passed!==null?lot.passed+'/'+lot.qty+' passed':'pending'));return;}
+  alert('Scanned: '+text+'\n\nNo matching batch found. Use as lot number or search manually.');
+}
+
+// ── PRODUCT CAMERA ──
+function openCamera(cb){
+  var inp=document.createElement('input');
+  inp.type='file';inp.accept='image/*';inp.capture='environment';
+  inp.onchange=function(){
+    var file=inp.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(e){if(cb)cb(e.target.result);};
+    reader.readAsDataURL(file);
+  };
+  document.body.appendChild(inp);inp.click();document.body.removeChild(inp);
+}
+
+function saveProductPhoto(pid,dataUrl){
+  if(!S.fgPhotos)S.fgPhotos={};
+  var img=new Image();
+  img.onload=function(){
+    var canvas=document.createElement('canvas');
+    var maxW=400,scale=Math.min(1,maxW/img.width);
+    canvas.width=img.width*scale;canvas.height=img.height*scale;
+    canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+    S.fgPhotos[pid]=canvas.toDataURL('image/jpeg',0.7);
+    save();toast('Photo saved!');
+    var inv=document.getElementById('s-inventory');
+    if(inv&&inv.classList.contains('on'))rInv();
+  };
+  img.src=dataUrl;
 }
 
 // BOOT
@@ -2778,6 +3352,344 @@ if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',bootApp);
 } else {
   bootApp();
+}
+
+// ── PRODUCTION PIPELINE ──
+// Stages: poured -> demold -> qc -> seal -> label -> package -> ready -> sold
+const PIPE_STAGES=[
+  {id:'poured',label:'Poured',icon:'&#9899;',desc:'Batch poured, curing'},
+  {id:'demold',label:'Demold',icon:'&#128275;',desc:'Removed from mold'},
+  {id:'qc',label:'QC Check',icon:'&#128269;',desc:'Quality inspection'},
+  {id:'seal',label:'Sealed',icon:'&#128737;',desc:'Sealer applied'},
+  {id:'label',label:'Labeled',icon:'&#127991;',desc:'Label applied'},
+  {id:'package',label:'Packaged',icon:'&#128230;',desc:'Ready in packaging'},
+  {id:'ready',label:'Ready',icon:'&#9989;',desc:'Available for sale'},
+  {id:'sold',label:'Sold',icon:'&#128176;',desc:'Fulfilled to customer'},
+];
+
+function rPipeline(){
+  var el=document.getElementById('s-pipeline');
+  el.innerHTML='<div class="ptitle">Production pipeline</div>'
+    +'<div class="psub">Track every unit from batch to customer</div>'
+    +'<div class="ptabs">'
+    +'<button class="ptab on" id="pp-active" onclick="ppTab(&quot;active&quot;)">Active ('+S.pipeline.filter(function(p){return p.stage!=='sold';}).length+')</button>'
+    +'<button class="ptab" id="pp-add" onclick="ppTab(&quot;add&quot;)">+ Add units</button>'
+    +'<button class="ptab" id="pp-label" onclick="ppTab(&quot;label&quot;)">Label builder</button>'
+    +'<button class="ptab" id="pp-pack" onclick="ppTab(&quot;pack&quot;)">Packaging</button>'
+    +'<button class="ptab" id="pp-sold" onclick="ppTab(&quot;sold&quot;)">Sold ('+S.pipeline.filter(function(p){return p.stage==='sold';}).length+')</button>'
+    +'</div>'
+    +'<div id="pp-body"></div>';
+  ppTab('active');
+}
+
+function ppTab(t){
+  document.querySelectorAll('.ptab').forEach(function(b){b.classList.remove('on');});
+  var bt=document.getElementById('pp-'+t);if(bt)bt.classList.add('on');
+  var el=document.getElementById('pp-body');if(!el)return;
+  if(t==='active')el.innerHTML=ppActiveHTML();
+  else if(t==='add'){el.innerHTML=ppAddHTML();setTimeout(function(){var ab=document.getElementById('pp-add-btn');if(ab)ab.onclick=addToPipeline;},50);}
+  else if(t==='label'){el.innerHTML=ppLabelHTML();setTimeout(function(){var lb=document.getElementById('lb-preview-btn');if(lb)lb.onclick=previewLabel;var cb=document.getElementById('cc-preview-btn');if(cb)cb.onclick=previewCareCard;},50);}
+  else if(t==='pack'){el.innerHTML=ppPackHTML();setTimeout(function(){document.querySelectorAll('.pack-adj').forEach(function(btn){btn.onclick=function(){var mid=btn.getAttribute('data-mid');var d=parseInt(btn.getAttribute('data-d'));if(S.packMaterials&&S.packMaterials[mid]){S.packMaterials[mid].stock=Math.max(0,(S.packMaterials[mid].stock||0)+d);save();ppTab('pack');}};});},50);}
+  else if(t==='sold')el.innerHTML=ppSoldHTML();
+}
+
+function ppActiveHTML(){
+  var active=S.pipeline.filter(function(p){return p.stage!=='sold';});
+  if(!active.length)return '<div class="empty">No units in pipeline.<br>Use Add units to move a completed batch into the pipeline.</div>';
+
+  // Group by stage
+  var byStage={};
+  PIPE_STAGES.forEach(function(s){byStage[s.id]=[];});
+  active.forEach(function(u){if(!byStage[u.stage])byStage[u.stage]=[];byStage[u.stage].push(u);});
+
+  var html='<div class="metrics" style="margin-top:4px;">';
+  PIPE_STAGES.slice(0,-1).forEach(function(s){
+    var count=byStage[s.id]?byStage[s.id].length:0;
+    if(count>0){
+      html+='<div class="mcard"><div class="ml">'+s.label+'</div><div class="mv">'+count+'</div></div>';
+    }
+  });
+  html+='</div>';
+
+  // Show units by stage
+  PIPE_STAGES.slice(0,-1).forEach(function(stage){
+    var units=byStage[stage.id]||[];
+    if(!units.length)return;
+    html+='<div class="slbl">'+stage.icon+' '+stage.label+' ('+units.length+')</div>';
+    units.forEach(function(u){
+      var nextStage=PIPE_STAGES[PIPE_STAGES.findIndex(function(s){return s.id===u.stage;})+1];
+      html+='<div class="card" style="padding:12px 14px;margin-bottom:8px;">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">'
+        +'<div>'
+        +'<div style="font-size:13px;font-weight:700;color:var(--t);">'+u.product+' &middot; <span style="font-family:var(--mono);color:var(--gold);">'+u.lot+'</span></div>'
+        +'<div style="font-size:11px;color:var(--t3);margin-top:2px;">Batch: '+u.batchSku+' &middot; Qty: '+u.qty+' &middot; In stage since: '+u.stageDate+'</div>'
+        +(u.scent?'<div style="font-size:11px;color:var(--t3);">Scent: '+u.scent+'</div>':'')
+        +'</div>'
+        +(nextStage?'<button class="btn sm pri advance-btn" data-uid="'+u.id+'">Move to '+nextStage.label+' &rarr;</button>':'')
+        +'</div>'
+        +'</div>';
+    });
+  });
+  // Attach advance button handlers
+  setTimeout(function(){
+    document.querySelectorAll('.advance-btn').forEach(function(btn){
+      btn.onclick=function(){advancePipelineUnit(btn.getAttribute('data-uid'));};
+    });
+  },50);
+  return html;
+}
+
+function ppAddHTML(){
+  var batchOpts=S.batches.slice(0,15).map(function(b){
+    return '<option value="'+b.sku+'|'+b.lot+'|'+b.size+'|'+b.qty+'">'+b.sku+' - Lot '+b.lot+' - '+b.qty+' units ('+b.date+')</option>';
+  }).join('');
+  var cBatchOpts=S.cBatches.slice(0,10).map(function(b){
+    return '<option value="'+b.sku+'|'+(b.lot||'--')+'|candle|'+b.qty+'">'+b.sku+' - '+b.frag+' - '+b.qty+' units ('+b.date+')</option>';
+  }).join('');
+
+  return '<div class="card">'
+    +'<div class="ctitle">Add batch to pipeline</div>'
+    +'<div style="font-size:12px;color:var(--t3);margin-bottom:14px;line-height:1.6;">Select a completed batch to move into the production pipeline. Each unit gets tracked individually.</div>'
+    +'<div class="fg" style="margin-bottom:10px;"><label>Select concrete batch</label>'
+    +'<select id="pp-cbatch">'
+    +'<option value="">-- Select a batch --</option>'
+    +batchOpts
+    +'</select></div>'
+    +(cBatchOpts?'<div class="fg" style="margin-bottom:10px;"><label>Or select candle batch</label>'
+    +'<select id="pp-canbatch">'
+    +'<option value="">-- Select a candle batch --</option>'
+    +cBatchOpts
+    +'</select></div>':'')
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Scent (candles)</label><input type="text" id="pp-scent" placeholder="e.g. Vanilla Amber"></div>'
+    +'<div class="fg"><label>Starting stage</label>'
+    +'<select id="pp-stage">'
+    +PIPE_STAGES.slice(0,-1).map(function(s){return '<option value="'+s.id+'"'+(s.id==='poured'?' selected':'')+'>'+s.label+'</option>';}).join('')
+    +'</select></div>'
+    +'</div>'
+    +'<button class="btn pri" id="pp-add-btn" style="width:100%;justify-content:center;">Add to pipeline</button>'
+    +'</div>';
+}
+
+function ppSoldHTML(){
+  var sold=S.pipeline.filter(function(p){return p.stage==='sold';});
+  if(!sold.length)return '<div class="empty">No sold units yet.</div>';
+  return sold.slice(0,20).map(function(u){
+    return '<div class="hr"><div class="ht">'
+      +'<span class="hsku">'+u.lot+'</span>'
+      +'<span style="font-size:12px;color:var(--t2);">'+u.product+'</span>'
+      +(u.scent?'<span style="font-size:11px;color:var(--t3);">'+u.scent+'</span>':'')
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--t3);margin-top:3px;">Batch: '+u.batchSku+' &middot; Sold: '+(u.soldDate||'--')+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function addToPipeline(){
+  var concreteSel=document.getElementById('pp-cbatch')?.value;
+  var candleSel=document.getElementById('pp-canbatch')?.value;
+  var sel=concreteSel||candleSel;
+  if(!sel){toast('Select a batch first');return;}
+  var parts=sel.split('|');
+  var sku=parts[0],lot=parts[1],size=parts[2],qty=parseInt(parts[3])||1;
+  var stage=document.getElementById('pp-stage')?.value||'poured';
+  var scent=document.getElementById('pp-scent')?.value||'';
+  var product=size==='candle'?'Concrete Candle':(size==='9'?'9oz Concrete Vessel':'5oz Concrete Vessel');
+  // Add one pipeline entry per unit
+  for(var i=0;i<qty;i++){
+    S.pipeline.push({
+      id:'PL'+Date.now()+i,
+      batchSku:sku,
+      lot:lot+'-'+(i+1).toString().padStart(3,'0'),
+      product:product,
+      size:size,
+      scent:scent,
+      stage:stage,
+      stageDate:iso(),
+      history:[{stage:stage,date:iso()}],
+      createdAt:iso()
+    });
+  }
+  save();
+  toast(qty+' units added to pipeline!');
+  ppTab('active');
+}
+
+function advancePipelineUnit(uid){
+  var unit=S.pipeline.find(function(u){return u.id===uid;});
+  if(!unit)return;
+  var stageIdx=PIPE_STAGES.findIndex(function(s){return s.id===unit.stage;});
+  if(stageIdx<0||stageIdx>=PIPE_STAGES.length-1)return;
+  var nextStage=PIPE_STAGES[stageIdx+1];
+  unit.stage=nextStage.id;
+  unit.stageDate=iso();
+  if(!unit.history)unit.history=[];
+  unit.history.push({stage:nextStage.id,date:iso()});
+  if(nextStage.id==='sold')unit.soldDate=iso();
+  save();
+  rPipeline();
+  toast('Moved to '+nextStage.label+'!');
+}
+
+// ── LABEL BUILDER ──
+function ppLabelHTML(){
+  var fragrances=[...S.fragLib,...S.customScents];
+  var fragOpts=fragrances.map(function(f){return '<option value="'+f.name+'">'+f.name+'</option>';}).join('');
+
+  return '<div class="card" style="margin-bottom:12px;">'
+    +'<div class="ctitle">Candle label generator</div>'
+    +'<div style="font-size:12px;color:var(--t3);margin-bottom:14px;line-height:1.6;">ASTM F2337 compliant warning label. Fill in details and preview below. Print or save as PDF.</div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Product name</label><input type="text" id="lb-name" placeholder="e.g. Vanilla Amber" list="lb-frag-list"><datalist id="lb-frag-list">'+fragOpts+'</datalist></div>'
+    +'<div class="fg"><label>Net weight (oz)</label><input type="number" id="lb-wt" value="9" step="0.1"></div>'
+    +'</div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Burn time (hrs)</label><input type="text" id="lb-burn" placeholder="e.g. 60-80"></div>'
+    +'<div class="fg"><label>Lot number</label><input type="text" id="lb-lot" placeholder="KS-2604-001"></div>'
+    +'</div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Scent notes</label><input type="text" id="lb-notes" placeholder="e.g. Vanilla, Amber, Musk"></div>'
+    +'<div class="fg"><label>Vessel type</label><select id="lb-vessel"><option>Concrete vessel</option><option>Glass jar</option><option>Tin</option></select></div>'
+    +'</div>'
+    +'<div class="fg" style="margin-bottom:12px;"><label>Fragrance allergens (optional)</label><input type="text" id="lb-allerg" placeholder="e.g. Linalool, Limonene"></div>'
+    +'<button class="btn pri" id="lb-preview-btn" style="width:100%;justify-content:center;">Preview label</button>'
+    +'</div>'
+    +'<div id="lb-preview"></div>'
+
+    +'<div class="card" style="margin-top:12px;">'
+    +'<div class="ctitle">Concrete vessel care card</div>'
+    +'<div style="font-size:12px;color:var(--t3);margin-bottom:14px;">Care and warranty card for concrete vessels.</div>'
+    +'<div class="fg2">'
+    +'<div class="fg"><label>Vessel size</label><select id="cc-size"><option>9oz</option><option>5oz</option><option>Custom</option></select></div>'
+    +'<div class="fg"><label>Lot number</label><input type="text" id="cc-lot" placeholder="KS-2604-001"></div>'
+    +'</div>'
+    +'<button class="btn pri" id="cc-preview-btn" style="width:100%;justify-content:center;">Preview care card</button>'
+    +'</div>'
+    +'<div id="cc-preview"></div>';
+}
+
+function previewLabel(){
+  var name=document.getElementById('lb-name')?.value||'Kuli Legacy Candle';
+  var wt=document.getElementById('lb-wt')?.value||'9';
+  var burn=document.getElementById('lb-burn')?.value||'60-80';
+  var lot=document.getElementById('lb-lot')?.value||'';
+  var notes=document.getElementById('lb-notes')?.value||'';
+  var vessel=document.getElementById('lb-vessel')?.value||'Concrete vessel';
+  var allerg=document.getElementById('lb-allerg')?.value||'';
+
+  var el=document.getElementById('lb-preview');if(!el)return;
+  el.innerHTML='<div style="margin-top:12px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+    +'<div style="font-size:12px;color:var(--t3);">Label preview (tap Print to print)</div>'
+    +'<button class="btn sm" onclick="window.print()">&#128424; Print</button>'
+    +'</div>'
+    +'<div class="lbl-prev" id="label-print-area">'
+    +'<div style="text-align:center;margin-bottom:8px;">'
+    +'<div style="font-size:18px;font-weight:700;font-family:Georgia,serif;color:#0a0a0a;">KULI LEGACY</div>'
+    +'<div style="font-size:13px;font-weight:600;color:#333;margin-top:2px;">'+name+'</div>'
+    +(notes?'<div style="font-size:10px;color:#666;margin-top:2px;">'+notes+'</div>':'')
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:10px;color:#444;margin:8px 0;padding:6px 0;border-top:1px solid #eee;border-bottom:1px solid #eee;">'
+    +'<span>Net wt: '+wt+' oz</span>'
+    +'<span>Burn time: '+burn+' hrs</span>'
+    +'<span>'+vessel+'</span>'
+    +'</div>'
+    +'<div class="lbl-warn">'
+    +'<div style="font-weight:700;font-size:9px;margin-bottom:3px;">&#9888; WARNING</div>'
+    +'To prevent fire and serious injury: Always burn within sight. Keep away from flammables. Keep away from children and pets. '
+    +'Never burn longer than 4 hours. Keep wax pool free of debris. '
+    +'Stop use when 1/2" of wax remains. Trim wick to 1/4" before each use. '
+    +'Burn on heat-resistant surface. Do not move when lit or hot.'
+    +'</div>'
+    +(allerg?'<div style="font-size:9px;color:#555;margin-top:4px;">Contains: '+allerg+'</div>':'')
+    +'<div style="display:flex;justify-content:space-between;font-size:9px;color:#888;margin-top:6px;">'
+    +'<span>Hand-poured in Schererville, IN</span>'
+    +'<span>kulilegacy.com</span>'
+    +'</div>'
+    +(lot?'<div style="font-size:9px;color:#aaa;text-align:right;margin-top:2px;">Lot: '+lot+'</div>':'')
+    +'</div>'
+    +'</div>';
+}
+
+function previewCareCard(){
+  var size=document.getElementById('cc-size')?.value||'9oz';
+  var lot=document.getElementById('cc-lot')?.value||'';
+  var el=document.getElementById('cc-preview');if(!el)return;
+  el.innerHTML='<div style="margin-top:12px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+    +'<div style="font-size:12px;color:var(--t3);">Care card preview</div>'
+    +'<button class="btn sm" onclick="window.print()">&#128424; Print</button>'
+    +'</div>'
+    +'<div class="lbl-prev">'
+    +'<div style="text-align:center;margin-bottom:10px;">'
+    +'<div style="font-size:18px;font-weight:700;font-family:Georgia,serif;color:#0a0a0a;">KULI LEGACY</div>'
+    +'<div style="font-size:11px;color:#666;margin-top:2px;">KuliStone '+size+' Concrete Vessel</div>'
+    +'<div style="font-size:9px;color:#aaa;">Built Different &middot; Rise Above</div>'
+    +'</div>'
+    +'<div style="font-size:10px;color:#333;line-height:1.7;">'
+    +'<div style="font-weight:700;margin-bottom:4px;">Care instructions</div>'
+    +'&#8226; Clean with damp cloth only. Do not submerge in water.<br>'
+    +'&#8226; Concrete is porous. Avoid harsh chemicals and oils on the exterior.<br>'
+    +'&#8226; Use on heat-resistant surface. Concrete conducts heat.<br>'
+    +'&#8226; Normal variation in color and texture is natural to handmade concrete.<br>'
+    +'&#8226; Seal periodically to maintain finish and water resistance.'
+    +'</div>'
+    +'<div style="font-size:10px;color:#333;line-height:1.7;margin-top:8px;">'
+    +'<div style="font-weight:700;margin-bottom:4px;">Refill program</div>'
+    +'When your candle burns down, your vessel is ready for a refill. '
+    +'Contact us at kulilegacy.com or scan the QR code on the base to order your refill candle.'
+    +'</div>'
+    +'<div style="font-size:10px;color:#333;margin-top:8px;">'
+    +'<div style="font-weight:700;margin-bottom:4px;">Warranty</div>'
+    +'Kuli Legacy stands behind every vessel we produce. If your vessel arrives damaged or develops a structural defect within 90 days of purchase, contact us for a replacement.'
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:9px;color:#aaa;margin-top:10px;padding-top:8px;border-top:1px solid #eee;">'
+    +'<span>Hand-poured in Schererville, IN</span>'
+    +'<span>kulilegacy.com</span>'
+    +'</div>'
+    +(lot?'<div style="font-size:9px;color:#ccc;text-align:right;margin-top:2px;">Lot: '+lot+'</div>':'')
+    +'</div>'
+    +'</div>';
+}
+
+// ── PACKAGING SYSTEM ──
+function ppPackHTML(){
+  var mats=S.packMaterials||{};
+  return '<div class="slbl">Packaging materials inventory</div>'
+    +'<div class="card" style="margin-bottom:12px;">'
+    +Object.entries(mats).map(function(e){
+      var id=e[0],m=e[1];
+      var low=m.stock<=5;
+      return '<div class="dr"><span class="dk" style="font-weight:600;">'+m.name+'</span>'
+        +'<div style="display:flex;align-items:center;gap:10px;">'
+        +'<span style="font-size:11px;color:var(--t3);">$'+m.cost.toFixed(2)+' each</span>'
+        +'<div style="display:flex;align-items:center;gap:6px;">'
+        +'<button class="btn sm pack-adj" data-mid="'+id+'" data-d="-1" style="padding:2px 8px;">-</button>'
+        +'<span style="font-size:16px;font-weight:700;font-family:var(--mono);color:'+(low?'var(--red)':'var(--t)')+';">'+m.stock+'</span>'
+        +'<button class="btn sm pack-adj" data-mid="'+id+'" data-d="1" style="padding:2px 8px;">+</button>'
+        +'</div>'
+        +(low?'<span class="bdg bfail">Low</span>':'')
+        +'</div></div>';
+    }).join('')
+    +'</div>'
+    +'<div class="slbl">Packaging cost per product</div>'
+    +'<div class="card">'
+    +'<div class="dr"><span class="dk">9oz Concrete Candle (standard)</span><span class="dv">$'+(
+      (mats.box9?mats.box9.cost:0)+(mats.tissue?mats.tissue.cost*2:0)+(mats.sticker?mats.sticker.cost:0)+(mats.crinkle?mats.crinkle.cost:0)+(mats.thankyou?mats.thankyou.cost:0)
+    ).toFixed(2)+'</span></div>'
+    +'<div class="dr"><span class="dk">5oz Concrete Candle (standard)</span><span class="dv">$'+(
+      (mats.box5?mats.box5.cost:0)+(mats.tissue?mats.tissue.cost:0)+(mats.sticker?mats.sticker.cost:0)+(mats.thankyou?mats.thankyou.cost:0)
+    ).toFixed(2)+'</span></div>'
+    +'<div class="dr"><span class="dk">Mailer box (shipping)</span><span class="dv">$'+(
+      (mats.mailer?mats.mailer.cost:0)+(mats.bubble?mats.bubble.cost*2:0)
+    ).toFixed(2)+'</span></div>'
+    +'</div>'
+    +'<div class="slbl">Packing checklist &mdash; 9oz candle standard</div>'
+    +'<div class="card">'
+    +['Wipe exterior of vessel with dry cloth','Insert crinkle filler in box base','Wrap vessel in 2 sheets black tissue','Place in gift box, tissue folded over top','Apply round logo sticker to seal tissue','Insert thank you card','Close and seal box','Apply shipping label if outgoing'].map(function(t){
+      return '<div class="qci"><input type="checkbox"><span>'+t+'</span></div>';
+    }).join('')
+    +'</div>';
 }
 </script>
 </body>
