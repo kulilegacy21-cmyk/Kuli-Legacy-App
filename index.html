@@ -206,12 +206,14 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
       <button class="btn-full" onclick="doLogin()">Sign in</button>
       <div class="login-divider">or</div>
       <button class="btn-full" style="background:transparent;border:1px solid var(--b2);color:var(--t2);" onclick="showPanel('lp-register')">Request access</button>
+      <button class="btn-ghost" onclick="showForgotPin()">Forgot PIN?</button>
     </div>
 
     <!-- PANEL: Admin first-time setup -->
     <div class="login-panel show" id="lp-admin-setup">
-      <div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:4px;">Welcome, Admin</div>
-      <div style="font-size:12px;color:var(--t3);margin-bottom:18px;line-height:1.6;">First launch — set up your admin account to get started.</div>
+      <div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:4px;">&#128274; Admin setup</div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:8px;line-height:1.6;">This is for the <strong style="color:var(--t);">business owner only</strong>. If you are a team member tap below.</div>
+      <button class="btn-ghost" style="margin-bottom:12px;" onclick="showPanel('lp-register')">Not the owner? Request access instead &rarr;</button>
       <div class="lf-group">
         <div class="lf-label">Your name</div>
         <input class="lf-input" id="as-name" type="text" placeholder="e.g. Will" autocomplete="off">
@@ -436,6 +438,8 @@ let S={
     {id:'f3',name:'Lavender Dream',cat:'uplifting',top:'lavender',mid:'rose',base:'white musk',tP:40,mP:35,bP:25,load:7,cost:1.9,stock:8,trend:false,supplier:'Brambleberry',char:'Classic lavender over soft floral and clean musk.',wick:'CD-14',wax:'Soy wax'},
   ],
   customScents:[],content:[],pwaShown:false,
+  monthlyGoal:1000,
+  fgStock:{p1:0,p2:0,p3:0,p4:0,p5:0,p6:0,p7:0,p8:0,p9:0,p10:0,p11:0,p12:0},
 };
 
 function load(){
@@ -610,6 +614,13 @@ function doAdminSetup(){
   });
   save();
   enterApp('will',name,true,uid);
+  // Prompt Supabase setup so team members can access from their devices
+  setTimeout(function(){
+    if(!S.sbUrl||!S.sbKey){
+      var go2sb=confirm('Admin account created!\n\nSet up cloud sync now? This lets Denise, Jaiden, and team access the app on their own devices.\n\nTap OK to go to Settings.');
+      if(go2sb){go('settings');}
+    }
+  },600);
 }
 
 function doLogin(){
@@ -693,6 +704,32 @@ function logout(){
   if(loginEl)loginEl.classList.remove('hide');
   if(appEl)appEl.style.display='none';
   authInit();
+}
+
+function showForgotPin(){
+  var nameInp=document.getElementById('li-user');
+  var name=nameInp?nameInp.value.trim():'';
+  if(!name){name=prompt('Enter your username:');}
+  if(!name)return;
+  var user=S.users.find(function(u){return u.nameLower===name.toLowerCase();});
+  if(!user){alert('Username not found.');return;}
+  if(user.isAdmin){
+    var expected=(user.name+'KuliLegacy').toLowerCase().replace(/\s/g,'');
+    var recovery=prompt('Admin recovery\nEnter: your name + KuliLegacy (no spaces, lowercase)\nExample: willkulilegacy');
+    if(!recovery||recovery.toLowerCase().replace(/\s/g,'')!==expected){
+      alert('Incorrect. If locked out completely, clear Safari website data and restart app.');
+      return;
+    }
+    var np=prompt('Enter new admin PIN (4 digits):');
+    if(!np||np.length!==4)return;
+    var np2=prompt('Confirm new PIN:');
+    if(np!==np2){alert('PINs do not match');return;}
+    user.pinHash=hp(np);save();syncToCloud();
+    alert('Admin PIN reset. Sign in with your new PIN.');
+  } else {
+    var admin=S.users.find(function(u){return u.isAdmin;});
+    alert('PIN reset requires admin approval.\n\nAsk '+(admin?admin.name:'the admin')+' to go to Settings and reset your PIN.');
+  }
 }
 
 function buildNav(){document.getElementById('bnav').innerHTML=ROLES[role].nav.map(t=>'<button class="ni" id="nb-'+t+'" onclick="go(\''+t+'\')" ><svg viewBox="0 0 18 18" fill="none">'+NI[t]+'</svg>'+NL[t]+'</button>').join('');}
@@ -1849,28 +1886,34 @@ function addShowToCalendar(name,loc,date,type,fee,travel,goal,research){
 
 function shUpcomingHTML(){
   var upcoming=S.shows.filter(function(s){return s.status==='planned';});
-  if(!upcoming.length)return '<div class="empty">No upcoming shows planned yet.<br>Use the Plan a show tab to research and add shows.</div>';
-  return upcoming.map(function(sh){
+  if(!upcoming.length)return '<div class="empty">No upcoming shows planned yet. Use Plan a show tab to add shows.</div>';
+  var html=upcoming.map(function(sh){
     var daysUntil=Math.round((new Date(sh.date)-new Date())/(1000*60*60*24));
     var urgency=daysUntil<=7?'var(--red)':daysUntil<=14?'var(--yellow)':'var(--green)';
     return '<div class="card" style="margin-bottom:12px;">'
       +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
-      +'<div style="flex:1;">'
-      +'<div style="font-size:16px;font-weight:700;color:var(--t);">'+sh.name+'</div>'
+      +'<div style="flex:1;"><div style="font-size:16px;font-weight:700;color:var(--t);">'+sh.name+'</div>'
       +'<div style="font-size:12px;color:var(--t3);margin-top:3px;">'+sh.date+' &middot; '+sh.location+'</div>'
-      +'<div style="font-size:12px;color:'+urgency+';margin-top:3px;font-weight:600;">'+daysUntil+' days away</div>'
-      +'</div>'
-      +'<div style="text-align:right;">'
-      +'<div style="font-size:11px;color:var(--t3);">Goal</div>'
-      +'<div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--gold);">$'+sh.goal+'</div>'
-      +'</div>'
-      +'</div>'
+      +'<div style="font-size:12px;color:'+urgency+';font-weight:600;margin-top:3px;">'+daysUntil+' days away</div></div>'
+      +'<div style="text-align:right;"><div style="font-size:11px;color:var(--t3);">Goal</div>'
+      +'<div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--gold);">$'+sh.goal+'</div></div></div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">'
-      +'<button class="btn pri sm" data-shid="'+sh.id+'" class="start-show-btn">Start show</button>'
-      +'<button class="btn sm" data-shid="'+sh.id+'" class="cancel-show-btn" style="color:var(--red);border-color:rgba(248,113,113,.3);">Cancel show</button>'
-      +'</div>'
-      +'</div>';
+      +'<button class="btn pri sm start-show-btn" data-shid="'+sh.id+'">Start show</button>'
+      +'<button class="btn sm cancel-show-btn" data-shid="'+sh.id+'" style="color:var(--red);border-color:rgba(248,113,113,.3);">Cancel</button>'
+      +'</div></div>';
   }).join('');
+  setTimeout(function(){
+    document.querySelectorAll('.start-show-btn').forEach(function(b){
+      b.onclick=function(){startShow(b.getAttribute('data-shid'));};
+    });
+    document.querySelectorAll('.cancel-show-btn').forEach(function(b){
+      b.onclick=function(){
+        var sh=S.shows.find(function(s){return s.id===b.getAttribute('data-shid');});
+        if(sh&&confirm('Cancel '+sh.name+'?')){sh.status='cancelled';save();shTab('upcoming');}
+      };
+    });
+  },50);
+  return html;
 }
 
 function shHistoryHTML(){
